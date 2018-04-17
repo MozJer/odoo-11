@@ -430,7 +430,7 @@ class Assignment(models.Model):
     #       record.units_to_assign= record.book_assets_id.asset_id.units-record.units
 
     @api.constrains('percentage')
-    def _check_something(self):
+    def _check_valid_percentage(self):
         for record in self:
             if not record.percentage in range(0,101):
                 raise ValidationError("Invalid value")
