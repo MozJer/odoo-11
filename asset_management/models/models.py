@@ -68,7 +68,9 @@ class Asset(models.Model):
 
     @api.onchange('assignment_id')
     def _onchange_assignment_id(self):
-        self.percentage = sum(self.assignment_id.percentage)
+        self.percentage = 0.0
+        for p in self.assignment_id:
+            self.percentage +=p.percentage #self.assignment_id.percentage
         if(not float_compare(100.00,self.percentage)):
             return {
             'warning': {
