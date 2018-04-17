@@ -48,6 +48,7 @@
                                         <field name="responsible_id"/>
                                         <field name="location_id"/>
                                         <field name="transfer_date"/>
+                                        <field name = "percentage"/>
                                     </tree>
                                 </field>
                             </page>
@@ -358,7 +359,7 @@
 						<group>
 						  <!-- <field name="units"/> 
 						   <field name="units_to_assign"/> -->
-                            <!--<field name="percentage"/>-->
+                            <field name="percentage"/>
 						   <field name="transfer_date"/>
                            <field name="end_use_date"/>
 						   <field name="comments"/>

@@ -26,10 +26,12 @@ class Asset(models.Model):
     depreciation_line_ids = fields.One2many(comodel_name="asset_management.depreciation", inverse_name="asset_id", string="depreciation")
     asset_serial_number = fields.Char(string ='Serial Number' )
     asset_tag_number = fields.Many2many('asset_management.tag')
+    percentage = fields.Float(default = 0.0,digits=(5,2))
     assignment_id = fields.One2many('asset_management.assignment',inverse_name='asset_id')
     _sql_constraints=[
         ('asset_serial_number','UNIQUE(asset_serial_number)','Serial Number already exists!')
     ]
+    
     asset_with_category=fields.Boolean(related='category_id.asset_with_category')
     # sum_result=fields.Integer()
     state = fields.Selection([('draft', 'Draft'), ('open', 'Running'), ('close', 'Close')], 'Status', required=True,
@@ -63,6 +65,18 @@ class Asset(models.Model):
                          'category_id':self.category_id.id,
                          })
                 return record
+
+    @api.onchange('assignment_id')
+        def _onchange_assignment_id(self):
+            self.percentage = sum(self.assignment_id.percentage)
+            if(not float_compare(100.00,self.percentage)):
+                return {
+                'warning': {
+                    'title': "Percentage Error",
+                    'message': "Percentage does not add up to 100",
+                },
+            }
+
 
     @api.onchange('category_id')
     def onchange_category_id(self):
@@ -399,7 +413,7 @@ class Assignment(models.Model):
     end_use_date = fields.Date()
     transfer_date = fields.Date()
     comments = fields.Text()
-   # percentage=fields.Float(digits=(5,2) ,required=True)
+    percentage=fields.Float(digits=(5,2) ,required=True)
     # units = fields.Integer()
     # units_to_assign= fields.Integer(string = "Units to Assign ,compute = '_get_units_to_assign')
     # @api.depends('responsible_id')
