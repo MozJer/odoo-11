@@ -67,15 +67,15 @@ class Asset(models.Model):
                 return record
 
     @api.onchange('assignment_id')
-        def _onchange_assignment_id(self):
-            self.percentage = sum(self.assignment_id.percentage)
-            if(not float_compare(100.00,self.percentage)):
-                return {
-                'warning': {
-                    'title': "Percentage Error",
-                    'message': "Percentage does not add up to 100",
-                },
-            }
+    def _onchange_assignment_id(self):
+        self.percentage = sum(self.assignment_id.percentage)
+        if(not float_compare(100.00,self.percentage)):
+            return {
+            'warning': {
+                'title': "Percentage Error",
+                'message': "Percentage does not add up to 100",
+            },
+        }
 
 
     @api.onchange('category_id')
