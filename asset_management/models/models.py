@@ -26,7 +26,7 @@ class Asset(models.Model):
     depreciation_line_ids = fields.One2many(comodel_name="asset_management.depreciation", inverse_name="asset_id", string="depreciation")
     asset_serial_number = fields.Char(string ='Serial Number' )
     asset_tag_number = fields.Many2many('asset_management.tag')
-    percentage = fields.Float(default = 0.0,digits=(5,2))
+    percentage = fields.Integer(compute = '_modify_percentage')
     assignment_id = fields.One2many('asset_management.assignment',inverse_name='asset_id')
     _sql_constraints=[
         ('asset_serial_number','UNIQUE(asset_serial_number)','Serial Number already exists!')
@@ -66,31 +66,33 @@ class Asset(models.Model):
                          })
                 return record
 
-    @api.onchange('assignment_id')
-    def _onchange_assignment_id(self):
-        self.percentage = 0.0
-        for p in self.assignment_id:
-            self.percentage +=p.percentage #self.assignment_id.percentage
-        if(not float_compare(100.00,self.percentage,precision_digits=2)):
-            return {
-            'warning': {
-                'title': "Percentage Error",
-                'message': "Percentage does not add up to 100",
-            },
-        }
+    # @api.onchange('assignment_id')
+    # def _onchange_assignment_id(self):
+    #     for p in self.assignment_id:
+    #         self.percentage +=p.percentage #self.assignment_id.percentage
 
+    @api.depends('percentage', 'assignment_id')
+    def _modify_percentage(self):
+        for record in self:
+            for assignment in record.assignment_id:
+                record.percentage+=assignment.percentage
 
     @api.onchange('category_id')
     def onchange_category_id(self):
         if self.category_id:
                 self.asset_with_category = True
 
+    @api.constrains('assignment_id')
+    def _checkpercentage(self):
+        for record in self:
+            if record.percentage not in (0,100):
+                raise ValidationError("Assignment does not add up to 100")
     # @api.onchange('assignment_id')
     # def onchange_assignment_id(self):
     #     sum_res=0
     #     for x in self.assignment_id:
     #         sum_res+=x.percentage
-    #     self.sum_result=float_compare(100.00,
+    #     self.sum_result=float_compare(100.00,pre
     #                                       sum_res, precision_digits=2)
 
     # @api.constrains('sum_result')
@@ -415,7 +417,7 @@ class Assignment(models.Model):
     end_use_date = fields.Date()
     transfer_date = fields.Date()
     comments = fields.Text()
-    percentage=fields.Float(digits=(5,2) ,required=True)
+    percentage=fields.Integer(default = 100)
     # units = fields.Integer()
     # units_to_assign= fields.Integer(string = "Units to Assign ,compute = '_get_units_to_assign')
     # @api.depends('responsible_id')
@@ -426,6 +428,13 @@ class Assignment(models.Model):
     # def _get_units_to_assign(self):
     #     for record in self:
     #       record.units_to_assign= record.book_assets_id.asset_id.units-record.units
+
+    @api.constrains('percentage')
+    def _check_something(self):
+        for record in self:
+            if not record.percentage in range(0,101):
+                raise ValidationError("Invalid value")
+
 
     @api.model
     def create(self, values):
