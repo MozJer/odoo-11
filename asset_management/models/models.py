@@ -71,7 +71,7 @@ class Asset(models.Model):
         self.percentage = 0.0
         for p in self.assignment_id:
             self.percentage +=p.percentage #self.assignment_id.percentage
-        if(not float_compare(100.00,self.percentage)):
+        if(not float_compare(100.00,self.percentage,precision_digits=2)):
             return {
             'warning': {
                 'title': "Percentage Error",
