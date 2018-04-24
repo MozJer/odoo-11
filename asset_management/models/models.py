@@ -71,7 +71,7 @@ class Asset(models.Model):
     #     for p in self.assignment_id:
     #         self.percentage +=p.percentage #self.assignment_id.percentage
 
-    @api.depends('percentage', 'assignment_id')
+    @api.depends('assignment_id')
     def _modify_percentage(self):
         for record in self:
             for assignment in record.assignment_id:
