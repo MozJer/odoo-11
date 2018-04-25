@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="BookmarkManager">
+    <bookmark url="file://$PROJECT_DIR$/../fiels/account_asset.py" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="bc75f719-69d3-4ba9-843c-90cdf38bf8ab" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -11,72 +14,88 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file leaf-file-name="models.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="__manifest__.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/__manifest__.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="575">
+              <caret line="31" column="11" lean-forward="false" selection-start-line="31" selection-start-column="11" selection-end-line="31" selection-end-column="11" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="models.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models/models.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="188">
-              <caret line="180" column="15" lean-forward="false" selection-start-line="180" selection-start-column="4" selection-end-line="180" selection-end-column="15" />
-              <folding />
+            <state relative-caret-position="345">
+              <caret line="24" column="18" lean-forward="false" selection-start-line="24" selection-start-column="4" selection-end-line="24" selection-end-column="18" />
+              <folding>
+                <element signature="e#25#40#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="views.xml" pinned="false" current-in-tab="false">
+      <file leaf-file-name="views.xml" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/views/views.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="631">
-              <caret line="669" column="62" lean-forward="false" selection-start-line="669" selection-start-column="62" selection-end-line="669" selection-end-column="62" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="product.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../fiels/product.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="account.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../fiels/account.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="account_asset.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../fiels/account_asset.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="384">
-              <caret line="215" column="16" lean-forward="false" selection-start-line="215" selection-start-column="12" selection-end-line="215" selection-end-column="16" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="account_invoice.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../fiels/account_invoice.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state relative-caret-position="598">
+              <caret line="62" column="87" lean-forward="false" selection-start-line="62" selection-start-column="87" selection-end-line="62" selection-end-column="87" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
       <file leaf-file-name="account_asset_views.xml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../fiels/account_asset_views.xml">
+        <entry file="file://$PROJECT_DIR$/../asset-odoo/account_asset_views.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1035">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state relative-caret-position="3082">
+              <caret line="134" column="58" lean-forward="true" selection-start-line="134" selection-start-column="58" selection-end-line="134" selection-end-column="58" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="account_asset.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../asset-odoo/account_asset.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="269">
+              <caret line="323" column="13" lean-forward="true" selection-start-line="323" selection-start-column="8" selection-end-line="323" selection-end-column="20" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="asset_modify.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wizard/asset_modify.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="842">
+              <caret line="74" column="0" lean-forward="true" selection-start-line="74" selection-start-column="0" selection-end-line="74" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#38#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="asset_modify_view.xml" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wizard/asset_modify_view.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="437">
+              <caret line="19" column="64" lean-forward="false" selection-start-line="19" selection-start-column="64" selection-end-line="19" selection-end-column="64" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/__init__.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="92">
+              <caret line="4" column="20" lean-forward="false" selection-start-line="4" selection-start-column="20" selection-end-line="4" selection-end-column="20" />
+              <folding>
+                <element signature="e#25#50#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -85,55 +104,87 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>invoice_line_ids</find>
-      <find>transaction form</find>
-      <find>assignment form</find>
-      <find>domain</find>
-      <find>asset_management.book</find>
-      <find>book_with_cate</find>
-      <find>book</find>
-      <find>class cat</find>
-      <find>book_in_cate</find>
-      <find>category_boo</find>
-      <find>book for</find>
-      <find>book form</find>
-      <find>category form</find>
-      <find>asset_with_category</find>
-      <find>_get_last_depreciation_date</find>
-      <find>_compute_board_undone_dotation_nb</find>
-      <find>sequence</find>
-      <find>x</find>
-      <find>compute_fiscalyear_dates</find>
-      <find>_compute_board_amount</find>
-      <find>fiscalyear_last_month</find>
-      <find>value_residual</find>
-      <find>_amount_residual</find>
-      <find>value</find>
-      <find>move_check</find>
-      <find>residual_amount</find>
-      <find>depreciation_date</find>
-      <find>DF</find>
-      <find>method_period</find>
-      <find>class</find>
+      <find>one2</find>
+      <find>category_id</find>
+      <find>inver</find>
+      <find>class a</find>
+      <find>asset_management.category_books</find>
+      <find>method_time</find>
+      <find>setup_modifiers</find>
+      <find>compute_de</find>
+      <find>method_number</find>
+      <find>changes</find>
+      <find>parent_sta</find>
+      <find>state</find>
+      <find>book_id</find>
+      <find>depreciation_line_ids</find>
+      <find>category for</find>
+      <find>depend</find>
+      <find>class boo</find>
+      <find>default_get</find>
+      <find>life</find>
+      <find>life_months</find>
+      <find>write</find>
+      <find>open</find>
+      <find>pare</find>
+      <find>book_assets_id</find>
+      <find>parent_asset</find>
+      <find>related</find>
+      <find>parent_stat</find>
+      <find>book asset for</find>
+      <find>set_to_close</find>
+      <find>close</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/views/views.xml" />
+        <option value="$PROJECT_DIR$/../fiels/account_invoice.py" />
+        <option value="$PROJECT_DIR$/models/depreciation.py" />
+        <option value="$USER_HOME$/AppData/Local/Temp/fz3temp-2/models 2.py" />
+        <option value="$USER_HOME$/AppData/Local/Temp/fz3temp-2/views.xml" />
+        <option value="$USER_HOME$/AppData/Local/Temp/fz3temp-2/views 3.xml" />
+        <option value="$USER_HOME$/AppData/Local/Temp/fz3temp-2/models 3.py" />
+        <option value="$PROJECT_DIR$/../crm1/__manifest__.py" />
+        <option value="$PROJECT_DIR$/../crm1/models/models.py" />
+        <option value="$PROJECT_DIR$/../crm1/views/views.xml" />
+        <option value="$PROJECT_DIR$/../crm_ext/__manifest__.py" />
+        <option value="$PROJECT_DIR$/../crm_ext/models/models.py" />
+        <option value="$PROJECT_DIR$/../crm_ext/views/views.xml" />
+        <option value="$USER_HOME$/AppData/Local/Temp/fz3temp-2/models.py" />
+        <option value="$USER_HOME$/AppData/Local/Temp/fz3temp-2/__manifest__.py" />
+        <option value="$PROJECT_DIR$/../crm_ext/views/models.py" />
+        <option value="$PROJECT_DIR$/../extend_event_track/__manifest__.py" />
+        <option value="$PROJECT_DIR$/../extend_event_track/views/views.xml" />
+        <option value="$PROJECT_DIR$/../extend_event_track/models/models.py" />
         <option value="$PROJECT_DIR$/../fiels/account_asset.py" />
+        <option value="$PROJECT_DIR$/models/__init__.py" />
+        <option value="$PROJECT_DIR$/models/account.py" />
+        <option value="$PROJECT_DIR$/../asset-odoo/account_asset_views.xml" />
+        <option value="$PROJECT_DIR$/../asset-odoo/account_asset.py" />
+        <option value="$USER_HOME$/AppData/Local/Temp/fz3temp-2/__init__ 3.py" />
+        <option value="$PROJECT_DIR$/wizard/__init__.py" />
+        <option value="$PROJECT_DIR$/../asset-odoo/asset_modify_view.xml" />
+        <option value="$PROJECT_DIR$/__init__.py" />
+        <option value="$PROJECT_DIR$/__manifest__.py" />
+        <option value="$USER_HOME$/AppData/Local/Temp/fz3temp-2/__init__ 2.py" />
+        <option value="$USER_HOME$/AppData/Local/Temp/fz3temp-2/__manifest__ 2.py" />
+        <option value="$PROJECT_DIR$/../asset-odoo/asset_modify_views.xml" />
+        <option value="$PROJECT_DIR$/wizard/asset_modify_view.xml" />
+        <option value="$PROJECT_DIR$/wizard/asset_modify.py" />
         <option value="$PROJECT_DIR$/models/models.py" />
+        <option value="$PROJECT_DIR$/views/views.xml" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="7">
-    <option name="x" value="561" />
-    <option name="y" value="7" />
+    <option name="x" value="315" />
+    <option name="y" value="15" />
     <option name="width" value="1400" />
     <option name="height" value="990" />
   </component>
   <component name="ProjectView">
-    <navigator currentView="ProjectPane" proportions="" version="1">
+    <navigator proportions="" version="1">
       <flattenPackages />
       <showMembers />
       <showModules />
@@ -146,25 +197,12 @@
       <manualOrder />
       <foldersAlwaysOnTop value="true" />
     </navigator>
-    <panes>
-      <pane id="Scope" />
-      <pane id="Scratches" />
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="asset_management" type="b2602c69:ProjectViewProjectNode" />
-              <item name="asset_management" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-    </panes>
+    <panes />
   </component>
   <component name="PropertiesComponent">
     <property name="settings.editor.selected.configurable" value="reference.settings.ide.settings.file-colors" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file://E:/odoo/fiels/account_asset.py" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -177,6 +215,54 @@
         </RuleState>
       </list>
     </option>
+  </component>
+  <component name="RunManager" selected="Python.models">
+    <configuration name="__manifest__" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="asset_management" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/__manifest__.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="true" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="models" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/models" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="asset_management" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/models/models.py" />
+      <option name="PARAMETERS" value="-db_user openerp" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <list size="2">
+      <item index="0" class="java.lang.String" itemvalue="Python.__manifest__" />
+      <item index="1" class="java.lang.String" itemvalue="Python.models" />
+    </list>
+    <recent_temporary>
+      <list size="2">
+        <item index="0" class="java.lang.String" itemvalue="Python.models" />
+        <item index="1" class="java.lang.String" itemvalue="Python.__manifest__" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="ShelveChangesManager" show_recycled="false">
     <option name="remove_strategy" value="false" />
@@ -198,14 +284,14 @@
     <frame x="-9" y="-9" width="1938" height="1048" extended-state="7" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.092708334" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.1171875" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32928178" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -221,177 +307,270 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager />
+    <breakpoint-manager>
+      <option name="time" value="5" />
+    </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/models/models.py">
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/event.py" />
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/company.py" />
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/res_company.py" />
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/res_company 3.py" />
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/res_company 2.py" />
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/res_company 4.py" />
+    <entry file="file://$PROJECT_DIR$/../website_rtl/models/website.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2116">
-          <caret line="92" column="23" lean-forward="false" selection-start-line="92" selection-start-column="4" selection-end-line="92" selection-end-column="23" />
-          <folding />
+        <state relative-caret-position="-257">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/views/views.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2898">
-          <caret line="126" column="98" lean-forward="false" selection-start-line="126" selection-start-column="98" selection-end-line="126" selection-end-column="98" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/models/models.py">
+    <entry file="file://$PROJECT_DIR$/../fiels/account_invoice.py" />
+    <entry file="file://$PROJECT_DIR$/../fiels/account.py" />
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/account_asset.py" />
+    <entry file="file://$PROJECT_DIR$/../fiels/product_views.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/views/views.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="851">
-          <caret line="37" column="9" lean-forward="true" selection-start-line="37" selection-start-column="9" selection-end-line="37" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/account_invoice.py" />
-    <entry file="file://$PROJECT_DIR$/models/models.py">
+    <entry file="file://$PROJECT_DIR$/../fiels/res_config_settings_views.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/models/models.py">
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/asset_modify_views.xml" />
+    <entry file="file://$PROJECT_DIR$/../fiels/account_invoice_views.xml" />
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/asset_depreciation_confirmation_wizard.py" />
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/asset_depreciation_confirmation_wizard_views.xml" />
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/asset_modify.py" />
+    <entry file="file://$PROJECT_DIR$/../fiels/account_asset_views.xml" />
+    <entry file="file://$PROJECT_DIR$/../fiels/account_asset.py" />
+    <entry file="file://$PROJECT_DIR$/../asset_management-v7/asset_management/models/models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7498">
-          <caret line="327" column="0" lean-forward="true" selection-start-line="327" selection-start-column="0" selection-end-line="327" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="667">
+          <caret line="324" column="0" lean-forward="true" selection-start-line="290" selection-start-column="4" selection-end-line="324" selection-end-column="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/views/views.xml">
+    <entry file="file://$PROJECT_DIR$/../extend_event_track/__manifest__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2185">
-          <caret line="95" column="65" lean-forward="true" selection-start-line="95" selection-start-column="65" selection-end-line="95" selection-end-column="65" />
-          <folding />
+        <state relative-caret-position="506">
+          <caret line="22" column="68" lean-forward="false" selection-start-line="22" selection-start-column="23" selection-end-line="22" selection-end-column="68" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/models/models.py">
+    <entry file="file://$PROJECT_DIR$/../extend_event_track/views/views.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1150">
+          <caret line="50" column="7" lean-forward="true" selection-start-line="50" selection-start-column="7" selection-end-line="50" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../extend_event_track/models/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1472">
+          <caret line="64" column="15" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="79" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../asset-odoo/asset_depreciation_confirmation_wizard_views.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="713">
+          <caret line="31" column="56" lean-forward="true" selection-start-line="31" selection-start-column="30" selection-end-line="31" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/account.xml" />
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/account_journal_dashboard_view.xml" />
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/account_move.py" />
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/account.py" />
+    <entry file="file://$PROJECT_DIR$/../asset-odoo/backend.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="184">
+          <caret line="14" column="28" lean-forward="false" selection-start-line="14" selection-start-column="8" selection-end-line="14" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../asset-odoo/account_invoice_views.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="207">
+          <caret line="9" column="58" lean-forward="false" selection-start-line="9" selection-start-column="57" selection-end-line="9" selection-end-column="58" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/__init__ 3.py" />
+    <entry file="file://$PROJECT_DIR$/models/account.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="276">
+          <caret line="12" column="38" lean-forward="false" selection-start-line="12" selection-start-column="21" selection-end-line="12" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../asset-odoo/asset_depreciation_confirmation_wizard.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="437">
+          <caret line="19" column="117" lean-forward="true" selection-start-line="19" selection-start-column="94" selection-end-line="19" selection-end-column="117" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/views/views.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="943">
-          <caret line="41" column="35" lean-forward="true" selection-start-line="41" selection-start-column="35" selection-end-line="41" selection-end-column="35" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://E:/customer_res/models/models.py" />
-    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/account_invoice.py" />
-    <entry file="file://$PROJECT_DIR$/../fiels/account_invoice.py">
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#100#120#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../fiels/product.py">
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/__manifest__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state relative-caret-position="529">
+          <caret line="23" column="40" lean-forward="true" selection-start-line="23" selection-start-column="8" selection-end-line="23" selection-end-column="40" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../fiels/account.py">
+    <entry file="file://$PROJECT_DIR$/../asset-odoo/asset_modify_view.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state relative-caret-position="598">
+          <caret line="26" column="39" lean-forward="false" selection-start-line="26" selection-start-column="16" selection-end-line="26" selection-end-column="39" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../fiels/account_asset_views.xml">
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/__manifest__ 2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1035">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state relative-caret-position="709">
+          <caret line="31" column="39" lean-forward="false" selection-start-line="31" selection-start-column="39" selection-end-line="31" selection-end-column="39" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/res_users.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/res_partner.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="571">
-          <caret line="28" column="24" lean-forward="false" selection-start-line="28" selection-start-column="8" selection-end-line="28" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/res_partner 2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="414">
-          <caret line="19" column="13" lean-forward="false" selection-start-line="19" selection-start-column="13" selection-end-line="19" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/res_users 2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-46">
-          <caret line="14" column="13" lean-forward="false" selection-start-line="14" selection-start-column="8" selection-end-line="14" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/company.py">
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/fz3temp-2/__init__ 2.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="92">
-          <caret line="85" column="25" lean-forward="false" selection-start-line="85" selection-start-column="15" selection-end-line="85" selection-end-column="25" />
+          <caret line="4" column="20" lean-forward="false" selection-start-line="4" selection-start-column="20" selection-end-line="4" selection-end-column="20" />
+          <folding>
+            <element signature="e#25#50#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/__manifest__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="575">
+          <caret line="31" column="11" lean-forward="false" selection-start-line="31" selection-start-column="11" selection-end-line="31" selection-end-column="11" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../fiels/account_asset.py">
+    <entry file="file://$PROJECT_DIR$/models/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="384">
-          <caret line="215" column="16" lean-forward="false" selection-start-line="215" selection-start-column="12" selection-end-line="215" selection-end-column="16" />
+        <state relative-caret-position="69">
+          <caret line="3" column="21" lean-forward="false" selection-start-line="3" selection-start-column="21" selection-end-line="3" selection-end-column="21" />
+          <folding>
+            <element signature="e#25#45#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wizard/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="0" lean-forward="true" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wizard/asset_modify_view.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="437">
+          <caret line="19" column="64" lean-forward="false" selection-start-line="19" selection-start-column="64" selection-end-line="19" selection-end-column="64" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../asset-odoo/asset_modify.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="714">
+          <caret line="85" column="54" lean-forward="true" selection-start-line="85" selection-start-column="8" selection-end-line="85" selection-end-column="54" />
+          <folding>
+            <element signature="e#100#122#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../asset-odoo/asset_modify_views.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="552">
+          <caret line="24" column="63" lean-forward="true" selection-start-line="24" selection-start-column="44" selection-end-line="24" selection-end-column="63" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="92">
+          <caret line="4" column="20" lean-forward="false" selection-start-line="4" selection-start-column="20" selection-end-line="4" selection-end-column="20" />
+          <folding>
+            <element signature="e#25#50#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wizard/asset_modify.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="842">
+          <caret line="74" column="0" lean-forward="true" selection-start-line="74" selection-start-column="0" selection-end-line="74" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#38#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="24" column="18" lean-forward="false" selection-start-line="24" selection-start-column="4" selection-end-line="24" selection-end-column="18" />
+          <folding>
+            <element signature="e#25#40#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../asset-odoo/account_asset_views.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3082">
+          <caret line="134" column="58" lean-forward="true" selection-start-line="134" selection-start-column="58" selection-end-line="134" selection-end-column="58" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../asset-odoo/account_asset.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="269">
+          <caret line="323" column="13" lean-forward="true" selection-start-line="323" selection-start-column="8" selection-end-line="323" selection-end-column="20" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/views/views.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="631">
-          <caret line="669" column="62" lean-forward="false" selection-start-line="669" selection-start-column="62" selection-end-line="669" selection-end-column="62" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/models/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="188">
-          <caret line="180" column="15" lean-forward="false" selection-start-line="180" selection-start-column="4" selection-end-line="180" selection-end-column="15" />
+        <state relative-caret-position="598">
+          <caret line="62" column="87" lean-forward="false" selection-start-line="62" selection-start-column="87" selection-end-line="62" selection-end-column="87" />
           <folding />
         </state>
       </provider>
