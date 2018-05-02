@@ -27,9 +27,10 @@
     # always loaded
     'data': [
         # 'security/ir.model.access.csv',
+        'wizard/asset_modify_view.xml',
         'views/views.xml',
         'views/templates.xml',
-        'wizard/asset_modify_view.xml',
+
     ],
     # only loaded in demonstration mode
     'demo': [
