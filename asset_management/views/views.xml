@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
      <data>
                <!--asset form view -->
@@ -32,7 +32,7 @@
                                    <field name="description"/>
                             </page>
                             <page name="book" string="Book">
-                                <field name="book_assets_id" widget="One2many_list" context="{'default_asset_id':id}">
+                                <field name="book_assets_id" widget="One2many_list">
                                     <tree string="Book Num">
                                         <field name="book_id"/>
                                         <field name="current_cost"/>
@@ -42,7 +42,7 @@
                                 </field>
                             </page>
                             <page name="assignment" string="Assignment">
-                                <field name="assignment_id" widget="One2many_list"  context="{'default_asset_id':id}">
+                                <field name="assignment_id" widget="One2many_list">
                                     <tree string="Assignment">
                                         <field name="responsible_id"/>
                                         <field name="location_id"/>
@@ -52,12 +52,13 @@
                                 </field>
                             </page>
                             <page name="depreciation" string="Depreciation">
-                                <field name="depreciation_line_ids" widget="One2many_list" context="{'default_asset_id':id}">
-                                    <tree string="Depreciation">
+                                <field name="depreciation_line_ids" widget="One2many_list" >
+                                    <tree string="Depreciation" create="false" edit="false" editable="false">
                                         <field name="book_id"/>
-                                        <field name="remaining_value"/>
+                                        <field name="depreciation_date"/>
                                         <field name="depreciated_value"/>
                                         <field name="amount"/>
+                                        <field name="remaining_value"/>
                                         <field name="parent_state" invisible="1"/>
                                         <field name="move_check" widget="deprec_lines_toggler" attrs="{'invisible':[('parent_state','!=','open')]}"/>
                                         <field name="move_posted_check" invisible="1"/>
@@ -65,7 +66,7 @@
                                 </field>
                             </page>
                             <page name=" SourceLine" string="Source Line">
-                                <field name="source_line_id" widget="One2many_list" context="{'default_asset_id':id }">
+                                <field name="source_line_id" widget="One2many_list">
                                         <tree string="Source Line">
                                                 <field name="name"/>
                                                 <field name="source_type"/>
@@ -230,7 +231,6 @@
 							<field name="reval_reserve_retire_loss_account"  attrs="{'readonly':[('book_with_cate','=',True)]}"/>
 							<field name="deferred_depreciation_reserve_account"  attrs="{'readonly':[('book_with_cate','=',True)]}"/>
 							<field name="depreciation_adjustment_account"  attrs="{'readonly':[('book_with_cate','=',True)]}"/>
-                            <field name="journal_id"/>
                             <field name="book_with_cate"/>
                         </group>
 					 </group>
@@ -294,10 +294,10 @@
             <field name="arch" type="xml">
                 <form string="Book Asset Form">
                     <header>
-                        <button name="%(asset_dep_modify_action)d" states="open" string="Modify Depreciation" type="action" class="oe_highlight"/>
+                        <button name="%(asset_dep_modify_action)d" string="Modify Depreciation" type="action" class="oe_highlight" attrs="{'invisible':['|',('depreciated_flag','=',False),('state','!=','open')]}"/>
                         <button name="validate" states="draft" type="object" string="confirm" class="oe_highlight" />
                         <button name="set_to_draft" string="Set to Draft" type="object" attrs="{'invisible': ['|',('state','!=','open'),('entry_count','!=',0)]}"/>
-                        <button name="compute_depreciation_board" string="Compute Depreciation" type="object" states="draft" class="oe_highlight" />
+                        <button name="compute_depreciation_board" string="Compute Depreciation" type="object" class="oe_highlight" attrs="{'invisible':['|',('depreciated_flag','=',False),('state','!=','draft')]}"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,open"/>
                     </header>
                     <sheet>
@@ -311,13 +311,20 @@
 						        <field name="name" invisible="1"/>
                                 <field name="book_id"/>
 							    <field name="asset_id"/>
+                                <field name="original_cost"/>
+                                <field name="salvage_value_type"/>
+                                <label for="salvage_value_amount"/>
+                                <dive>
+                                    <field name="salvage_value_amount" class="oe_inline"/>
+                                    <label string="%" class="oe_inline" attrs="{'invisible':[('salvage_value_type','=','amount')]}"/>
+                                </dive>
+                                <field name="salvage_value"/>
 							    <field name="current_cost"/>
-							    <field name="original_cost"/>
-							    <field name="salvage_value"/>	
-							    <field name="salvage_value_type"/>
+
                             </group>
 						    <group>
-						        <field name="depreciated_flag"/>
+						        <field name="depreciated_flag" attrs="{'readonly':[('depreciation_line_length','!=',0)]}"/>
+                                <field name="depreciation_line_length" invisible="1"/>
 						        <field name="method"/>
                                 <field name="method_progress_factor" attrs="{'invisible':[('method','=','linear')]}"/>
                                 <field name="method_time"/>
@@ -332,11 +339,11 @@
                         <notebook>
                         <page name="depreciation" string="Depreciation">
                                 <field name="depreciation_line_ids" widget="One2many_list" context="{'default_asset_id':id}">
-                                    <tree string="Depreciation">
-                                        <field name="book_id"/>
-                                        <field name="remaining_value"/>
+                                    <tree string="Depreciation" edit="false" create="false">
+                                        <field name="depreciation_date"/>
                                         <field name="depreciated_value"/>
                                         <field name="amount"/>
+                                        <field name="remaining_value"/>
                                         <field name="parent_state" invisible="1"/>
                                         <field name="move_check" widget="deprec_lines_toggler" attrs="{'invisible':[('parent_state','!=','open')]}"/>
                                         <field name="move_posted_check" invisible="1"/>
@@ -376,8 +383,8 @@
 					  <group>
                         <group>
                             <field name="name"/>
-                             <!--<field name="book_id"/>-->
                              <field name="asset_id"/>
+                             <field name="book_id"/>
 							 <field name="responsible_id"/>
 							 <field name="expence_Acc_ID"/>
 							 <field name="location_id"/>
@@ -387,7 +394,7 @@
 						   <field name="units_to_assign"/> -->
                            <field name="percentage"/>
 						   <field name="transfer_date"/>
-                           <field name="end_use_date"/>
+                           <!--<field name="end_use_date"/>-->
 						   <field name="comments"/>
 						</group>
 					  </group>						
@@ -403,7 +410,6 @@
 			     <tree string="Assignment Tree">
 			         <field name="name"/>
 				     <field name="responsible_id"/>
-                     <field name="is_not_used"  invisible = "context.get('is_in_used',False)"/>
 				 </tree>
 			 </field>
 	    </record>
@@ -416,7 +422,6 @@
 			     <search>
 				     <field name="name"/>
 					 <field name="responsible_id"/>
-                      <filter string="active" name="active" domain="[('is_not_used','=',False)]"/>
 				 </search>
 		     </field>
 		</record>	 
@@ -427,7 +432,7 @@
             <field name="res_model">asset_management.assignment</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-            <field name="context" eval="{'search_default_my_assignment': 1,'search_default_active':1}"/>
+            <field name="context" eval="{'search_default_my_assignment': 1}"/>
             <field name="help" type="html">
                 <p class="oe_view_nocontent_create">Create the first assignment
                 </p>
@@ -449,6 +454,7 @@
 						    <field name="name"/>
                             <field name="asset_id"/>
                             <field name="source_type"/>
+
                         </group>
 						<group>
                             <field name="invoice_id" attrs="{'invisible':[('source_type','!=','invoice')]}"/>
@@ -582,7 +588,7 @@
                             <field name="book_id"/>
                             <field name="asset_id"/>
                             <field name="retire_date"/>
-							<field name="current_cost"/>
+							<field name="residual_value"/>
 							<field name="units_retired"/>
 							<field name="current_units"/>
                         </group>
@@ -656,13 +662,12 @@
                             <field name="book_id"/>
                             <field name="asset_id"/>
                             <field name="sequence"/>
-                             <field name="amount"/>
                         </group>
 						<group>
+                            <field name="depreciation_date"/>
+                            <field name="amount"/>
+                            <field name="depreciated_value"/>
 						    <field name="remaining_value"/>
-						    <field name="depreciated_value"/>
-							<field name="depreciation_date"/>
-
 						</group>
 					  </group>
                     </sheet>
@@ -674,7 +679,7 @@
 	         <field name="name">depreciation.tree</field>
 			 <field name="model">asset_management.depreciation</field>
 			 <field name="arch" type="xml">
-			     <tree string="Depreciation Tree">
+			     <tree string="Depreciation Tree" create="false" edit="false">
 			         <field name="name"/>
 				      <field name="depreciated_value"/>
 				 </tree>
@@ -720,18 +725,19 @@
 						    <field name="name" invisible="1"/>
                             <field name="category_id"/>
 							<field name="book_id"/>
+                            <field name="depreciation_method"/>
+                            <field name="method_time"/>
+                            <field name="life_months"/>
                             <field name="group_entries"/>
                             <field name="book_with_cate" invisible="1"/>
                         </group>
 						<group>
+                            <field name="journal_id"/>
 						    <field name="asset_cost_account"/>
 						    <field name="asset_clearing_account"/>
 							<field name="depreciation_expense_account"/>
 							<field name="accumulated_expense_account"/>
-							<field name="bonus_expense_account"/>
-							<field name="bonus_reserve_account"/>
-							<field name="cip_cost_account"/>
-							<field name="cip_clearing_account"/> 
+                            <field name="expence_Acc_ID"/>
 						</group>
 					  </group>						  
                     </sheet>
@@ -754,6 +760,44 @@
 
         <menuitem id="category_books_menu" name="Category Books" parent="asset_management_menu"
                   action="category_books_list_action"/>
+
+
+          <!--&lt;!&ndash;location form view&ndash;&gt;-->
+         <!--<record id="location_form_view" model="ir.ui.view">-->
+             <!--<field name="name">Location Form</field>-->
+             <!--<field name="model">asset_management.location</field>-->
+             <!--<field name="inherit_id" ref="asset_management.assignment_form_view"/>-->
+             <!--<field name="arch" type="xml">-->
+                 <!--<xpath expr="//field[@name='location_id']" position="after">-->
+                             <!--<field name="name"/>-->
+                             <!--<field name="city"/>-->
+                             <!--<field name="state_id"/>-->
+                             <!--<field name="country_id"/>-->
+                 <!--</xpath>-->
+             <!--</field>-->
+         <!--</record>-->
+         <record id="location_form_view" model="ir.ui.view">
+             <field name="name">>Location Form</field>
+             <field name="model">asset_management.location</field>
+             <field name="arch" type="xml">
+                 <form string="Location Form">
+                     <sheet>
+                         <group>
+                             <group>
+                                <field name="name"/>
+                                <field name="city"/>
+                             </group>
+                             <group>
+                                <field name="state_id" context="{'country_id': country_id}"/>
+                                <field name="country_id"/>
+                             </group>
+                         </group>
+                     </sheet>
+                 </form>
+             </field>
+         </record>
+
+
 
 
 	</data>
