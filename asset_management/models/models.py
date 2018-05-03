@@ -32,11 +32,24 @@ class Asset(models.Model):
     ]
     asset_with_category=fields.Boolean(related='category_id.asset_with_category')
     source_line_id=fields.One2many('asset_management.source_line',string='Source Line',inverse_name='asset_id')
+    default_book=fields.Many2one('asset_management.book',required=True)
+
 
     @api.model
     def create(self, values):
         values['name'] = self.env['ir.sequence'].next_by_code('asset_management.asset.Asset')
-        return super(Asset, self).create(values)
+        record=super(Asset, self).create(values)
+        book_category=self.env['asset_management.category_books'].search([('book_id','=',record.default_book.id),('category_id','=',record.category_id.id)])
+        vals={
+            'asset_id': record.id,
+            'book_id': record.default_book.id,
+            'method_time': book_category.method_time,
+            'life_months': book_category.life_months,
+            'method': book_category.depreciation_method,
+            'original_cost': 0
+        }
+        record.env['asset_management.book_assets'].create(vals)
+        return record
 
 
     @api.multi
@@ -59,7 +72,14 @@ class Asset(models.Model):
     @api.onchange('category_id')
     def onchange_category_id(self):
         if self.category_id:
-                self.asset_with_category = True
+            self.asset_with_category = True
+            res=[]
+            default_book_domain=self.env['asset_management.category_books'].search([('category_id','=',self.category_id.id)])
+            for x in default_book_domain:
+                res+=[x.book_id.id]
+            return {'domain': {'default_book': [('id', 'in', res)]
+                               } }
+
 
 
     @api.depends('assignment_id')
@@ -77,27 +97,6 @@ class Asset(models.Model):
             if float_compare(record.percentage,100.00, precision_digits=2) != 0 :
                 raise ValidationError("Assignment does not add up to 100")
 
-
-    # @api.onchange('category_id')
-    # def  _onchange_category_id(self):
-    #     old_value=self._origin.category_id
-    #     if self.category_id:
-    #          record_exist = self.env['asset_management.transaction'].search([('asset_id','=',self._context.get('id'))],limit=1)
-    #          if record_exist:
-    #             if self.category_id != old_value:
-    #                  self.env['asset_management.transaction'].create({
-    #                         'asset_id':self.id,
-    #                         'trx_type': 're_class',
-    #                         'trx_date': datetime.today(),
-    #                       #'category_id' :self.category_id
-    #                 })
-    #          else:
-    #             self.env['asset_management.transaction'].create({
-    #                 'asset_id':self.id,
-    #                 'trx_type': 'addition',
-    #                 'trx_date': datetime.today(),
-    #               #  'category_id':self._context.get('category_id')
-    #             })
 
 
 class Category(models.Model):
@@ -145,7 +144,7 @@ class BookAssets (models.Model):
     name=fields.Char( string="Book Asset Number",index=True)
     book_id = fields.Many2one('asset_management.book',on_delete= 'cascade',required=True)
     asset_id = fields.Many2one('asset_management.asset',on_delete = 'cascade',readonly=True)
-    depreciation_line_ids=fields.One2many('asset_management.depreciation',inverse_name='book_assets_id')
+    depreciation_line_ids=fields.One2many(comodel_name='asset_management.depreciation',inverse_name='book_assets_id')
     depreciation_line_length=fields.Integer(compute="_depreciation_line_length")
     current_cost = fields.Float(string = "Residual Value",compute='_amount_residual',required=True)
     salvage_value = fields.Float(compute='_compute_salvage_value')
@@ -190,7 +189,7 @@ class BookAssets (models.Model):
             'category_id': record.asset_id.category_id.id,
             'trx_type': 'addition',
             'trx_date': datetime.today(),
-            'trx_details': 'New Asset ' + record.asset_id.name + ' Is Added to the Book: ' + record.book_id.name
+            'trx_details': 'New Asset ' +record.asset_id.name + ' Is Added to the Book: ' + record.book_id.name
         })
         return record
 
@@ -440,8 +439,8 @@ class Assignment(models.Model):
     _name = 'asset_management.assignment'
     name = fields.Char(string="Assignment",readonly='True',index=True)
     #book_assets_id = fields.Many2one('asset_management.book_assets',on_delete = 'cascade')
-    book_id = fields.Many2one("asset_management.book", string="Book",on_delete = 'cascade')
-    asset_id = fields.Many2one("asset_management.asset", string="Asset", on_delete='cascade',required=True)
+    book_id = fields.Many2one("asset_management.book", string="Book",on_delete = 'cascade',required=True)
+    asset_id = fields.Many2one("asset_management.asset", string="Asset", on_delete='cascade',readonly=True)
     expence_Acc_ID = fields.Many2one('account.account', on_delete='set_null')
     responsible_id = fields.Many2one('hr.employee', on_delete='set_null')
     location_id = fields.Many2one('asset_management.location',required=True)
@@ -535,7 +534,7 @@ class Assignment(models.Model):
 class SourceLine(models.Model):
     _name = 'asset_management.source_line'
     name = fields.Char(string="Source Line Number",readonly=True,index=True)
-    asset_id = fields.Many2one('asset_management.asset',on_delete = 'cascade',required=True)
+    asset_id = fields.Many2one('asset_management.asset',on_delete = 'cascade',readonly=True)
     source_type = fields.Selection(
         [
             ('invoice','Invoice'),

@@ -14,6 +14,7 @@
                                 <field name="item_id"/>
                                 <field name="category_id"/>
                                 <field name="parent_asset"/>
+                                <field name="default_book"/>
                                 <field name="asset_with_category" invisible="1"/>
                             </group>
                             <group>
@@ -292,7 +293,7 @@
             <field name="name">book_assets.form</field>
             <field name="model">asset_management.book_assets</field>
             <field name="arch" type="xml">
-                <form string="Book Asset Form">
+                <form string="Book Asset Form" create="false" >
                     <header>
                         <button name="%(asset_dep_modify_action)d" string="Modify Depreciation" type="action" class="oe_highlight" attrs="{'invisible':['|',('depreciated_flag','=',False),('state','!=','open')]}"/>
                         <button name="validate" states="draft" type="object" string="confirm" class="oe_highlight" />
@@ -407,7 +408,7 @@
 	         <field name="name">assignment.tree</field>
 			 <field name="model">asset_management.assignment</field>
 			 <field name="arch" type="xml">
-			     <tree string="Assignment Tree">
+			     <tree string="Assignment Tree" create="false" edit="false">
 			         <field name="name"/>
 				     <field name="responsible_id"/>
 				 </tree>
@@ -447,7 +448,7 @@
             <field name="name">source_line.form</field>
             <field name="model">asset_management.source_line</field>
             <field name="arch" type="xml">
-                <form string="Source_Line Form">
+                <form string="Source_Line Form" create="false">
                     <sheet>
 					  <group>
                         <group>
