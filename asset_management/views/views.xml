@@ -7,6 +7,9 @@
             <field name="model">asset_management.asset</field>
             <field name="arch" type="xml">
                 <form string="Asset Form">
+                    <header>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,capitalize"/>
+                    </header>
                     <sheet>
 					    <group>
                             <group>
@@ -33,17 +36,19 @@
                                    <field name="description"/>
                             </page>
                             <page name="book" string="Book">
-                                <field name="book_assets_id" widget="One2many_list">
-                                    <tree string="Book Num">
+                                <field name="book_assets_id"  widget="One2many_list" context="{'category_id':category_id}" editable="bottom" >
+                                    <tree string="Book Num" editable="bottom">
                                         <field name="book_id"/>
                                         <field name="current_cost"/>
                                         <field name="original_cost"/>
                                         <field name="method"/>
+                                        <field name="asset_id" invisible="1"/>
+                                        <button name="move_to_book_asset" type="object" string="Open"/>
                                     </tree>
                                 </field>
                             </page>
                             <page name="assignment" string="Assignment">
-                                <field name="assignment_id" widget="One2many_list">
+                                <field name="assignment_id" widget="One2many_list" context="{'category_id':category_id}">
                                     <tree string="Assignment">
                                         <field name="responsible_id"/>
                                         <field name="location_id"/>
@@ -53,7 +58,7 @@
                                 </field>
                             </page>
                             <page name="depreciation" string="Depreciation">
-                                <field name="depreciation_line_ids" widget="One2many_list" >
+                                <field name="depreciation_line_ids" widget="One2many_list" readonly="1">
                                     <tree string="Depreciation" create="false" edit="false" editable="false">
                                         <field name="book_id"/>
                                         <field name="depreciation_date"/>
@@ -150,7 +155,7 @@
                                 <field name="description" attrs="{'readonly':[('asset_with_category','=',True)]}"/>
                             </page>
                             <page name="book" string="Book">
-                                <field name="category_books_id" widget="One2many_list" context="{'default_category_id':id}">
+                                <field name="category_books_id" widget="One2many_list">
                                     <tree string="book num">
                                         <field name="book_id"/>
                                         <field name="asset_cost_account"/>
@@ -289,16 +294,17 @@
 				  
 				  
                <!--book-assets form view -->
-        <record model="ir.ui.view" id="book-assets_form_view">
+        <record model="ir.ui.view" id="book_assets_form_view">
             <field name="name">book_assets.form</field>
             <field name="model">asset_management.book_assets</field>
             <field name="arch" type="xml">
                 <form string="Book Asset Form" create="false" >
                     <header>
                         <button name="%(asset_dep_modify_action)d" string="Modify Depreciation" type="action" class="oe_highlight" attrs="{'invisible':['|',('depreciated_flag','=',False),('state','!=','open')]}"/>
-                        <button name="validate" states="draft" type="object" string="confirm" class="oe_highlight" />
+                        <button name="validate"  type="object" string="confirm" class="oe_highlight" attrs="{'invisible':['|',('asset_state','!=','capitalize'),('state','!=','draft')]}"/>
                         <button name="set_to_draft" string="Set to Draft" type="object" attrs="{'invisible': ['|',('state','!=','open'),('entry_count','!=',0)]}"/>
-                        <button name="compute_depreciation_board" string="Compute Depreciation" type="object" class="oe_highlight" attrs="{'invisible':['|',('depreciated_flag','=',False),('state','!=','draft')]}"/>
+                        <button name="compute_depreciation_board" string="Compute Depreciation" type="object" class="oe_highlight"
+                                attrs="{'invisible':['|','|',('depreciated_flag','=',False),('asset_state','!=','capitalize'),('state','!=','draft')]}"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,open"/>
                     </header>
                     <sheet>
@@ -321,6 +327,7 @@
                                 </dive>
                                 <field name="salvage_value"/>
 							    <field name="current_cost"/>
+                                <field name="asset_state" invisible="1"/>
 
                             </group>
 						    <group>
@@ -330,8 +337,8 @@
                                 <field name="method_progress_factor" attrs="{'invisible':[('method','=','linear')]}"/>
                                 <field name="method_time"/>
 							    <field name="date_in_service"/>
-							    <field name="prorate_date"/>
-							    <field name="prorate_convenction"/>
+							    <field name="prorate_date" readonly="1"/>
+							    <!--<field name="prorate_convenction"/>-->
                                 <field name="method_number" attrs="{'invisible':[('method_time','=','end')]}"/>
 							    <field name="life_months"/>
                                 <field name="end_date" attrs="{'invisible':[('method_time','=','number')]}"/>
@@ -339,7 +346,7 @@
 					    </group>
                         <notebook>
                         <page name="depreciation" string="Depreciation">
-                                <field name="depreciation_line_ids" widget="One2many_list" context="{'default_asset_id':id}">
+                                <field name="depreciation_line_ids" widget="One2many_list">
                                     <tree string="Depreciation" edit="false" create="false">
                                         <field name="depreciation_date"/>
                                         <field name="depreciated_value"/>
@@ -355,23 +362,51 @@
                     </sheet>
                 </form>     
             </field>
-        </record>	
+        </record>
 
-		         <!--book-assets action window-->
-        <record model="ir.actions.act_window" id="book_assets_list_action">
-            <field name="name">Book Asset</field>
+         <record model="ir.ui.view" id="book_asset_tree_view">
+	         <field name="name">book_asset.tree</field>
+			 <field name="model">asset_management.book_assets</field>
+			 <field name="arch" type="xml">
+			     <tree string="Book Asset Tree">
+				     <field name="book_id"/>
+                     <field name="asset_id"/>
+                     <field name="current_cost"/>
+                     <field name="original_cost"/>
+                     <field name="method"/>
+				 </tree>
+			 </field>
+         </record>
+
+    <!--book-assets action window-->
+         <record model="ir.actions.act_window" id="book_assets_list_action">
+            <field name="name">Book Asset1</field>
             <field name="res_model">asset_management.book_assets</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-            <field name="context" eval="{'search_default_my_book_assets': 1}"/>			
+            <field name="context" eval="{'search_default_my_book_assets': 1}"/>
             <field name="help" type="html">
                 <p class="oe_view_nocontent_create">Create the first book assets
                 </p>
             </field>
         </record>
 
+
+        <!--<record model="ir.actions.act_window.view" id="book_assets_list_action_form">-->
+            <!--<field name="name">Book Asset </field>-->
+            <!--<field name="act_window_id" ref="asset_list_action"/>-->
+            <!--<field name="view_id" ref="asset_form_view" />-->
+            <!--<field name="view_mode">form</field>-->
+        <!--</record>-->
+         <!--<record model="ir.actions.act_window.view" id="book_assets_list_action_tree">-->
+            <!--<field name="name">Book Asset </field>-->
+            <!--<field name="act_window_id" ref="book_assets_list_action"/>-->
+            <!--<field name="view_mode">tree</field>-->
+        <!--</record>-->
+
+
         <menuitem id="book_assets_menu" name="Book Assets" parent="asset_management_menu"
-                  action="book_assets_list_action"/>				  				  
+                  action="book_assets_list_action"/>
 
 				 
                <!--assignment form view -->
@@ -784,23 +819,18 @@
                  <form string="Location Form">
                      <sheet>
                          <group>
-                             <group>
-                                <field name="name"/>
-                                <field name="city"/>
-                             </group>
-                             <group>
-                                <field name="state_id" context="{'country_id': country_id}"/>
-                                <field name="country_id"/>
-                             </group>
+                             <label for="name" string="Address"/>
+                             <dive>
+                                <field name="name" placeholder="Street"/>
+                                 <field name="city" placeholder="City"/>
+                                 <field name="state_id" context="{'country_id': country_id}" placeholder="State"/>
+                                  <field name="country_id" placeholder="Country"/>
+                             </dive>
                          </group>
                      </sheet>
                  </form>
              </field>
          </record>
-
-
-
-
 	</data>
 
     <data>
