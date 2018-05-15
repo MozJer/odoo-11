@@ -205,14 +205,14 @@ class BookAssets (models.Model):
             'trx_date': datetime.today(),
             'trx_details': 'New Asset ' +record.asset_id.name + ' Is Added to the Book: ' + record.book_id.name
         })
-        val=self.original_cost
+
         self.env['asset_management.transaction'].create({
             'asset_id': record.asset_id.id,
             'book_id': record.book_id.id,
             'category_id': record.asset_id.category_id.id,
             'trx_type': 'cost_adjustment',
             'trx_date': datetime.today(),
-            'trx_details': 'Old Gross Value  Is: '+str(self.original_cost) + '\nNew Gross Vale Is: ' + str(self.val)
+            'trx_details': 'Old Gross Value  Is: '+str(0.00) + '\nNew Gross Vale Is: ' + str(record.original_cost)
         })
 
         return record
@@ -232,7 +232,7 @@ class BookAssets (models.Model):
     #                 'trx_details': 'Old Gross Value  Is: ' + str(old_gross_value) + '\nNew Gross Vale Is: ' + str(
     #                     self.original_cost)
     #             })
-    #
+
     @api.multi
     def write(self, values):
         old_gross_value = self.original_cost
