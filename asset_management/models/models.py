@@ -8,19 +8,17 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DF
 from odoo.tools import float_compare, float_is_zero
 
-
-
 class Asset(models.Model):
     _name = 'asset_management.asset'
     name = fields.Char(string="Asset Number", index=True,readonly=True)
-    description = fields.Text("Description" ,required=True)
+    description = fields.Text("Description")
     #units = fields.Integer("Units")
-
-    ownership_type = fields.Selection(selection=[('owned', 'Owned')], default='owned')
+    ownership_type = fields.Selection(selection=[('owned', 'Owned')
+        , ('leased', 'Leased')])
     is_new = fields.Selection(selection=[('new', 'New')
         , ('used', 'Used')])
     is_in_physical_inventory = fields.Boolean()
-    in_use_flag = fields.Boolean()
+    in_use_flag = fields.Boolean(required=True)
     parent_asset = fields.Many2one('asset_management.asset', on_delete='cascade')
     item_id = fields.Many2one('product.product', on_delete='set_null')
     category_id = fields.Many2one('asset_management.category', required=True)
@@ -28,45 +26,30 @@ class Asset(models.Model):
     depreciation_line_ids = fields.One2many(comodel_name="asset_management.depreciation", inverse_name="asset_id", string="depreciation")
     asset_serial_number = fields.Char(string ='Serial Number' )
     asset_tag_number = fields.Many2many('asset_management.tag')
-    percentage = fields.Float(compute='_modify_percentage')
-    assignment_id = fields.One2many('asset_management.assignment', inverse_name='asset_id')
+    percentage = fields.Integer(compute = '_modify_percentage')
+    assignment_id = fields.One2many('asset_management.assignment',inverse_name='asset_id')
     _sql_constraints=[
         ('asset_serial_number','UNIQUE(asset_serial_number)','Serial Number already exists!')
     ]
+    
     asset_with_category=fields.Boolean(related='category_id.asset_with_category')
-    source_line_id=fields.One2many('asset_management.source_line',string='Source Line',inverse_name='asset_id')
-    default_book=fields.Many2one('asset_management.book',required=True)
-    state=fields.Selection([('draft','Draft'),('capitalize','Capitalize'),('retired','Retired')] ,default="draft",string='Status',required=True,copy=False)
-
-
-    @api.onchange('assignment_id','source_line_id','book_assets_id')
-    def onchange_method(self):
-        # for book in self.book_assets_id:
-        #     for assignment in self.assignment_id:
-        #         if book.book_id.id == assignment.book_id.id:
-        if self.source_line_id  and self.assignment_id and self.book_assets_id:
-            self.state='capitalize'
-
-
+    # sum_result=fields.Integer()
+    state = fields.Selection([('draft', 'Draft'), ('open', 'Running'), ('close', 'Close')], 'Status', required=True,
+                             copy=False, default='draft',
+                             help="When an asset is created, the status is 'Draft'.\n"
+                                  "If the asset is confirmed, the status goes in 'Running' and the depreciation lines can be posted in the accounting.\n"
+                                  "You can manually close an asset when the depreciation is over. If the last line of depreciation is posted, the asset automatically goes in that status.")
 
     @api.model
     def create(self, values):
         values['name'] = self.env['ir.sequence'].next_by_code('asset_management.asset.Asset')
-        record=super(Asset, self).create(values)
-        book_category=self.env['asset_management.category_books'].search([('book_id','=',record.default_book.id),('category_id','=',record.category_id.id)])
-        vals={
-            'asset_id': record.id,
-            'book_id': record.default_book.id,
-            'method_time': book_category.method_time,
-            'life_months': book_category.life_months,
-            'method': book_category.depreciation_method,
-            'original_cost': 0
-        }
-        record.env['asset_management.book_assets'].create(vals)
-        if record.source_line_id  and record.assignment_id and record.book_assets_id:
-            record.state='capitalize'
-        return record
-
+    #     record=super(Asset, self).create(values)
+    #     self.env['asset_management.transaction'].create({
+    #          'asset_id': record.id,
+    #          'trx_type': 'addition',
+    #          'trx_date': datetime.today(),
+    #          })
+        return super(Asset, self).create(values)
 
     @api.multi
     def write(self, values):
@@ -75,53 +58,77 @@ class Asset(models.Model):
         if 'category_id' in values:
             if self.category_id != old_value:
                 for record in self:
-                    record.env['asset_management.transaction'].create({
+                    self.env['asset_management.transaction'].create({
                          'asset_id': record.id,
                          'trx_type': 're_class',
                          'trx_date': datetime.today(),
-                         'category_id':record.category_id.id,
-                         'trx_details':'old category : '+old_value.name+'\nnew category : '+record.category_id.name
+                         'category_id':self.category_id.id,
                          })
                 return record
 
+    # @api.onchange('assignment_id')
+    # def _onchange_assignment_id(self):
+    #     for p in self.assignment_id:
+    #         self.percentage +=p.percentage #self.assignment_id.percentage
 
-<<<<<<< HEAD
-=======
-    @api.onchange('category_id')
-    def onchange_category_id(self):
-        if self.category_id:
-            self.asset_with_category = True
-            res=[]
-            default_book_domain=self.env['asset_management.category_books'].search([('category_id','=',self.category_id.id)])
-            for x in default_book_domain:
-                res.append(x.book_id.id)
-            return {'domain': {'default_book': [('id', 'in', res)]
-                    }}
-
-
->>>>>>> raghadbranch
     @api.depends('assignment_id')
     def _modify_percentage(self):
         for record in self:
             for assignment in record.assignment_id:
-                record.percentage += assignment.percentage
+                record.percentage+=assignment.percentage
 
+    @api.onchange('category_id')
+    def onchange_category_id(self):
+        if self.category_id:
+                self.asset_with_category = True
 
     @api.constrains('assignment_id')
     def _checkpercentage(self):
         for record in self:
-            # if record.percentage not in (0, 100):
-            #     raise ValidationError("Assignment does not add up to 100")
-            if float_compare(record.percentage,100.00, precision_digits=2) != 0 :
+            if record.percentage not in (0,100):
                 raise ValidationError("Assignment does not add up to 100")
+    # @api.onchange('assignment_id')
+    # def onchange_assignment_id(self):
+    #     sum_res=0
+    #     for x in self.assignment_id:
+    #         sum_res+=x.percentage
+    #     self.sum_result=float_compare(100.00,pre
+    #                                       sum_res, precision_digits=2)
 
+    # @api.constrains('sum_result')
+    # def _check_sum(self):
+    #     if len(self.assignment_id)> 0:
+    #         if self.sum_result != 0 :
+    #             raise ValidationError("Assignment percentage != %100 asset can not be save")
+
+    # @api.onchange('category_id')
+    # def  _onchange_category_id(self):
+    #     old_value=self._origin.category_id
+    #     if self.category_id:
+    #          record_exist = self.env['asset_management.transaction'].search([('asset_id','=',self._context.get('id'))],limit=1)
+    #          if record_exist:
+    #             if self.category_id != old_value:
+    #                  self.env['asset_management.transaction'].create({
+    #                         'asset_id':self.id,
+    #                         'trx_type': 're_class',
+    #                         'trx_date': datetime.today(),
+    #                       #'category_id' :self.category_id
+    #                 })
+    #          else:
+    #             self.env['asset_management.transaction'].create({
+    #                 'asset_id':self.id,
+    #                 'trx_type': 'addition',
+    #                 'trx_date': datetime.today(),
+    #               #  'category_id':self._context.get('category_id')
+    #             })
 
 
 class Category(models.Model):
     _name = 'asset_management.category'
     name = fields.Char(string='Category Name',index=True)
     description = fields.Text()
-    ownership_type = fields.Selection(selection=[('owned', 'Owned')],default='owned')
+    ownership_type = fields.Selection(selection=[('owned', 'Owned')
+        , ('leased', 'Leased')])
     is_in_physical_inventory = fields.Boolean()
     category_books_id=fields.One2many('asset_management.category_books',inverse_name='category_id',on_delete='cascade')
     depreciation_method = fields.Selection([('linear','Linear'),('degressive','Degressive')],
@@ -147,7 +154,6 @@ class Book(models.Model):
     depreciation_adjustment_account = fields.Many2one('account.account', on_delete='set_null')
     book_with_cate = fields.Boolean()
 
-
     # @api.model
     # def create(self, values):
     #     values['name']=self.env['ir.sequence'].next_by_code('asset_management.book.Book')
@@ -155,148 +161,72 @@ class Book(models.Model):
 
 
 
-class BookAssets (models.Model):
+class Book_Assets (models.Model):
     _name='asset_management.book_assets'
     name=fields.Char( string="Book Asset Number",index=True)
-    book_id = fields.Many2one('asset_management.book',on_delete= 'cascade',required=True)
-    asset_id = fields.Many2one('asset_management.asset',on_delete = 'cascade',readonly=True)
-    depreciation_line_ids=fields.One2many(comodel_name='asset_management.depreciation',inverse_name='book_assets_id')
-    depreciation_line_length=fields.Integer(compute="_depreciation_line_length")
-    current_cost = fields.Float(string = "Residual Value",compute='_amount_residual',required=True)
-    salvage_value = fields.Float(compute='_compute_salvage_value')
+    book_id = fields.Many2one('asset_management.book',on_delete= 'cascade')
+    asset_id = fields.Many2one('asset_management.asset',on_delete = 'cascade')
+    depreciation_line_ids=fields.One2many('asset_management.depreciation',inverse_name='book_assets_id')
+    current_cost = fields.Float(string = "Current Cost",
+                                 compute='_amount_residual')
+    salvage_value = fields.Float()
     method = fields.Selection(
         [('linear','Linear'),
          ('degressive','Degressive')
-         ],required=True,string='Depreciation Method',default='linear')
-    life_months = fields.Integer(required=True)
-    end_date=fields.Date()
-    original_cost = fields.Float(string='Gross Value', required=True)
-    salvage_value_type = fields.Selection(
-        [('amount','Amount'),('percentage','Percentage')],default='amount'
+         ],
+        default='linear'
     )
-    salvage_value_amount=fields.Float(string='Salvage Value Amount')
+    life_months = fields.Integer()
+    end_date=fields.Date()
+    original_cost = fields.Float()
+    salvage_value_type = fields.Selection(
+        [('first','First Type')]
+    )
     date_in_service = fields.Date(string = 'Date In Service')
-    prorate_date= fields.Date(string = 'Prorate Date',)
-    # prorate_convenction = fields.Selection(
-    #     [('first','First Convention')]
-    # )
+    prorate_date= fields.Date(string = 'Prorate Date')
+    prorate_convenction = fields.Selection(
+        [('first','First Convention')]
+    )
     depreciated_flag = fields.Boolean(string='Depreciated',default =True)
-    method_progress_factor = fields.Float(string='Degressive Factor',default=0.3,)
-    method_number=fields.Integer(string='Number of Depreciation',help="The number of depreciations needed to depreciate your asset")
-    company_id = fields.Many2one('res.company', string='Company',default=lambda self: self.env['res.company']._company_default_get('asset_management.category'))
-    entry_count = fields.Integer(compute='_entry_count', string='# Asset Entries')
-    method_time = fields.Selection([('number', 'Number of Entries'), ('end', 'Ending Date')], string='Time Method',required=True,default= 'number',
-                                   help="Choose the method to use to compute the dates and number of entries.\n"
-                                        "  * Number of Entries: Fix the number of entries and the time between 2 depreciations.\n"
-                                        "  * Ending Date: Choose the time between 2 depreciations and the date the depreciations won't go beyond.")
-    state = fields.Selection([('draft', 'Draft'), ('open', 'Running'), ('close', 'Close')], 'Status', required=True,
-                             copy=False, default='draft',
-                             help="When an asset is created, the status is 'Draft'.\n"
-                                  "If the asset is confirmed, the status goes in 'Running' and the depreciation lines can be posted in the accounting.\n"
-                                  "You can manually close an asset when the depreciation is over. If the last line of depreciation is posted, the asset automatically goes in that status.")
-    asset_state=fields.Selection(related='asset_id.state')
+    method_progress_factor = fields.Float(string='Degressive Factor',default=0.3)
+
+
+
 
     @api.model
     def create(self, values):
-        values['name'] = self.env['ir.sequence'].next_by_code('asset_management.book_assets.BookAssets')
-        record = super(BookAssets, self).create(values)
+        values['name'] = self.env['ir.sequence'].next_by_code('asset_management.book_assets.Book_Assets')
+        record = super(Book_Assets, self).create(values)
         self.env['asset_management.transaction'].create({
-            'asset_id': record.asset_id.id,
-            'book_id': record.book_id.id,
-            'category_id': record.asset_id.category_id.id,
-            'trx_type': 'addition',
-            'trx_date': datetime.today(),
-            'trx_details': 'New Asset ' +record.asset_id.name + ' Is Added to the Book: ' + record.book_id.name
-        })
-
-        self.env['asset_management.transaction'].create({
-            'asset_id': record.asset_id.id,
-            'book_id': record.book_id.id,
-            'category_id': record.asset_id.category_id.id,
-            'trx_type': 'cost_adjustment',
-            'trx_date': datetime.today(),
-            'trx_details': 'Old Gross Value  Is: '+str(0.00) + '\nNew Gross Vale Is: ' + str(record.original_cost)
-        })
-
+                 'asset_id': record.asset_id.id,
+                 'book_id':record.book_id.id,
+                 'category_id': self.asset_id.category_id.id,
+                 'trx_type': 'addition',
+                 'trx_date': datetime.today(),
+                 })
         return record
 
 
-    # @api.onchange('original_cost')
-    # def _onchange_original_cost(self):
-    #     old_gross_value = self.original_cost
-    #     if self.original_cost:
-    #         for record in self:
-    #             self.env['asset_management.transaction'].create({
-    #                 'asset_id': record.asset_id.id,
-    #                 'book_id': record.book_id.id,
-    #                 'category_id': record.asset_id.category_id.id,
-    #                 'trx_type': 'cost_adjustment',
-    #                 'trx_date': datetime.today(),
-    #                 'trx_details': 'Old Gross Value  Is: ' + str(old_gross_value) + '\nNew Gross Vale Is: ' + str(
-    #                     self.original_cost)
-    #             })
-
-    @api.multi
-    def write(self, values):
-        old_gross_value = self.original_cost
-        super(BookAssets, self).write(values)
-        if 'original_cost' in values:
-            for record in self:
-                self.env['asset_management.transaction'].create({
-                    'asset_id': record.asset_id.id,
-                    'book_id': record.book_id.id,
-                    'category_id': record.asset_id.category_id.id,
-                    'trx_type': 'cost_adjustment',
-                    'trx_date': datetime.today(),
-                    'trx_details': 'Old Gross Value  Is: ' + str(old_gross_value) + '\nNew Gross Vale Is: ' + str(
-                        self.original_cost)
-                })
+    @api.onchange('original_cost')
+    def _onchange_original_cost(self):
+        if self.original_cost:
+            self.env['asset_management.transaction'].create({
+                'asset_id': self.asset_id.id,
+                'book_id': self.book_id.id,
+                'category_id':self.asset_id.category_id.id,
+                'trx_type': 'cost_adjustment',
+                'trx_date': datetime.today(),
+            })
 
 
+    def _compute_board_undone_dotation_nb(self, depreciation_date, total_days):
 
-    @api.onchange('book_id')
-    def domain_for_book_id(self):
-        if self._context.get('category_id'):
-            res=[]
-            book_domain=self.env['asset_management.category_books'].search([('category_id','=',self._context.get('category_id'))])
-            for x in book_domain:
-                res.append(x.book_id.id)
-            return {'domain': {'book_id': [('id', 'in', res)]
-                    }}
-
-
-    @api.multi
-    def validate(self):
-        assign_in_book_asset = self.env['asset_management.assignment'].search([('asset_id', '=', self.asset_id.id), ('book_id', '=', self.book_id.id)])
-        if not assign_in_book_asset:
-            raise UserError("you should assign the asset to a location")
-        self.write({'state': 'open'})
-
-
-    @api.multi
-    def set_to_draft(self):
-        self.write({'state': 'draft'})
-
-
-    @api.one
-    @api.depends('original_cost', 'salvage_value', 'depreciation_line_ids.move_check', 'depreciation_line_ids.amount')
-    def _amount_residual(self):
-        total_amount = 0.0
-        for line in self.depreciation_line_ids:
-            if line.move_check:
-                total_amount += line.amount
-        self.current_cost = self.original_cost - total_amount - self.salvage_value
-
-
-    def _compute_board_undone_dotation_nb(self, depreciation_date):
-        undone_dotation_number = self.method_number
-        if self.method_time == 'end':
-            end_date = datetime.strptime(self.end_date, DF).date()
-            undone_dotation_number = 0
-            while depreciation_date <= end_date:
-                depreciation_date = date(depreciation_date.year, depreciation_date.month,
-                                         depreciation_date.day) + relativedelta(months=+self.life_months)
-                undone_dotation_number += 1
+        end_date = datetime.strptime(self.end_date,DF).date()
+        undone_dotation_number = 0
+        while depreciation_date <= end_date:
+            depreciation_date = date(depreciation_date.year, depreciation_date.month,
+                                     depreciation_date.day) + relativedelta(months=+self.life_months)
+            undone_dotation_number += 1
         # if self.prorata:
         #     undone_dotation_number += 1
         return undone_dotation_number
@@ -308,7 +238,7 @@ class BookAssets (models.Model):
         if sequence == undone_dotation_number:
             amount = residual_amount
         else:
-            if self.method == 'linear':
+             if self.method == 'linear':
                 amount = amount_to_depr / (undone_dotation_number - len(posted_depreciation_line_ids))
                 # if self.prorata:
                 #     amount = amount_to_depr / self.method_number
@@ -322,7 +252,7 @@ class BookAssets (models.Model):
                 #             days = (self.company_id.compute_fiscalyear_dates(depreciation_date)[
                 #                         'date_to'] - depreciation_date).days + 1
                 #             amount = (amount_to_depr / self.method_number) / total_days * days
-            elif self.method == 'degressive':
+             elif self.method == 'degressive':
                 amount = residual_amount * self.method_progress_factor
                 # if self.prorata:
                 #     if sequence == 1:
@@ -338,18 +268,23 @@ class BookAssets (models.Model):
         return amount
 
 
+    @api.one
+    @api.depends('original_cost', 'salvage_value', 'depreciation_line_ids.move_check', 'depreciation_line_ids.amount')
+    def _amount_residual(self):
+        total_amount = 0.0
+        for line in self.depreciation_line_ids:
+            if line.move_check:
+                total_amount += line.amount
+        self.current_cost = self.original_cost - total_amount - self.salvage_value
+
+
+
+
     @api.multi
     def compute_depreciation_board(self):
-
         self.ensure_one()
-        assign_in_book_asset=self.env['asset_management.assignment'].search([('asset_id','=',self.asset_id.id),('book_id','=',self.book_id.id)])
-        if not assign_in_book_asset:
-            raise UserError ("You should assign the asset to a location")
-        elif self.date_in_service is None:
-            raise UserError ("Date in service is must be entered")
 
-        posted_depreciation_line_ids = self.depreciation_line_ids.filtered(lambda x: x.move_check).sorted(
-            key=lambda l: l.depreciation_date)
+        posted_depreciation_line_ids = self.depreciation_line_ids.filtered(lambda x: x.move_check).sorted(key=lambda l: l.depreciation_date)
         unposted_depreciation_line_ids = self.depreciation_line_ids.filtered(lambda x: not x.move_check)
 
         # Remove old unposted depreciation lines. We cannot use unlink() with One2many field
@@ -361,9 +296,9 @@ class BookAssets (models.Model):
             #     # if we already have some previous validated entries, starting date is last entry + method perio
             #     if posted_depreciation_line_ids and posted_depreciation_line_ids[-1].depreciation_date:
             #         last_depreciation_date = datetime.strptime(posted_depreciation_line_ids[-1].depreciation_date, DF).date()
-            #         depreciation_date = last_depreciation_date + relativedelta(months=+self.life_month)
+            #         depreciation_date = last_depreciation_date + relativedelta(months=+self.method_period)
             #     else:
-            #         depreciation_date = datetime.strptime(self._get_last_depreciation_date()[self.asset_id.id], DF).date()
+            #         depreciation_date = datetime.strptime(self._get_last_depreciation_date()[self.id], DF).date()
             # else:
             # depreciation_date = 1st of January of purchase year if annual valuation, 1st of
             # purchase month in other cases
@@ -373,8 +308,7 @@ class BookAssets (models.Model):
                 asset_date = datetime.strptime(self.date_in_service[:7] + '-01', DF).date()
             # if we already have some previous validated entries, starting date isn't 1st January but last entry + method period
             if posted_depreciation_line_ids and posted_depreciation_line_ids[-1].depreciation_date:
-                last_depreciation_date = datetime.strptime(posted_depreciation_line_ids[-1].depreciation_date,
-                                                           DF).date()
+                last_depreciation_date = datetime.strptime(posted_depreciation_line_ids[-1].depreciation_date, DF).date()
                 depreciation_date = last_depreciation_date + relativedelta(months=+self.life_months)
             else:
                 depreciation_date = asset_date
@@ -383,14 +317,11 @@ class BookAssets (models.Model):
             month = depreciation_date.month
             year = depreciation_date.year
             total_days = (year % 4) and 365 or 366
-            self.prorate_date = depreciation_date
 
-            undone_dotation_number = self._compute_board_undone_dotation_nb(depreciation_date)
-
+            undone_dotation_number = self._compute_board_undone_dotation_nb(depreciation_date, total_days)
             for x in range(len(posted_depreciation_line_ids), undone_dotation_number):
                 sequence = x + 1
-                amount = self._compute_board_amount(sequence, residual_amount, amount_to_depr, undone_dotation_number,
-                                                    posted_depreciation_line_ids)
+                amount = self._compute_board_amount(sequence, residual_amount, amount_to_depr, undone_dotation_number, posted_depreciation_line_ids)
                 current_currency = self.env['res.company'].search([('id', '=', 1)])[0].currency_id
                 amount = current_currency.round(amount)
                 if float_is_zero(amount, precision_rounding=current_currency.rounding):
@@ -399,7 +330,7 @@ class BookAssets (models.Model):
                 vals = {
                     'amount': amount,
                     'asset_id': self.asset_id.id,
-                    'book_id': self.book_id.id,
+                    'book_id':self.book_id.id,
                     'sequence': sequence,
                     'name': (self.name or '') + '/' + str(sequence),
                     'remaining_value': residual_amount,
@@ -413,227 +344,136 @@ class BookAssets (models.Model):
                 month = depreciation_date.month
                 year = depreciation_date.year
 
-        self.write({'depreciation_line_ids':commands})
-        return  True
-    # open move.entry form view
-    #asset_management.book_assets_list_action
-    @api.multi
-    def open_entries(self):
-        move_ids = []
-        for asset in self:
-            for depreciation_line in asset.depreciation_line_ids:
-                if depreciation_line.move_id:
-                    move_ids.append(depreciation_line.move_id.id)
-        return {
-            'name': _('Journal Entries'),
-            'view_type': 'form',
-            'view_mode': 'tree,form',
-            'res_model': 'account.move',
-            'view_id': False,
-            'type': 'ir.actions.act_window',
-            'domain': [('id', 'in', move_ids)],
-        }
+        self.write({'depreciation_line_ids': commands})
 
-    # number of generated entries
+        return True
 
-    @api.multi
-    @api.depends('depreciation_line_ids.move_id')
-    def _entry_count(self):
-        for asset in self:
-            res = self.env['asset_management.depreciation'].search_count(
-                [('asset_id', '=', asset.asset_id.id), ('move_id', '!=', False)])
-            asset.entry_count = res or 0
-
-
-# get default value from CategoryBook
-    @api.onchange('book_id')
-    def onchange_book_id(self):
-        vals = self.onchange_book_id_value(self.book_id.id)
-        # We cannot use 'write' on an object that doesn't exist yet
-        if vals:
-            for k, v in vals['value'].items():
-                setattr(self, k, v)
-
-
-    def onchange_book_id_value(self,book_id):
-        if book_id:
-            category_book = self.env['asset_management.category_books'].search([('book_id', '=', book_id), ('category_id', '=', self.asset_id.category_id.id)])
-            return{
-                 'value' : {
-                'method': category_book.depreciation_method,
-                'method_time':category_book.method_time,
-                'life_months':category_book.life_months
-                    }
-                }
-
-
-#to hide the depreciation compute button
-    @api.depends('depreciation_line_ids')
-    def _depreciation_line_length(self):
-        self.depreciation_line_length=len(self.depreciation_line_ids)
-
-
-#compute percentage for salvage value
-    @api.one
-    @api.depends('salvage_value_type','salvage_value_amount')
-    def _compute_salvage_value(self):
-        if self.salvage_value_type == 'amount':
-            self.salvage_value=self.salvage_value_amount
-        elif self.salvage_value_type=='percentage':
-            self.salvage_value=(self.salvage_value_amount * self.original_cost)/100
 
 
     @api.multi
-    def move_to_book_asset(self):
-        #view_id = self.env.ref('asset_management.book_assets_form_view').id
-        return{
-                         'type': 'ir.actions.act_window',
-                         'name': _(' Asset In Book'),
-                         'view_type': 'form',
-                         'view_mode': 'form',
-                         #'view_id':view_id,
-                         'res_model': 'asset_management.book_assets',
-                         'res_id':self.id,
-                         'target': 'current',
+    def _compute_entries(self, date, group_entries=False):
+        depreciation_ids = self.env['account.asset.depreciation.line'].search([
+            ('asset_id', 'in', self.ids), ('depreciation_date', '<=', date),
+            ('move_check', '=', False)])
+        if group_entries:
+            return depreciation_ids.create_grouped_move()
+        return depreciation_ids.create_move()
 
-           }
+    @api.multi
+    def create_grouped_move(self, post_move=True):
+        created_moves = self.env['account.move']
+        current_currency = self.env['res.company'].search([('id','=',1)])[0].currency_id
+        jounal_id=self.env['account.journal'].search([('id','=',3)])[0].id
+        for line in self:
+            category_id = line.asset_id.category_id
+            depreciation_date = self.env.context.get(
+                'depreciation_date') or line.depreciation_date or fields.Date.context_today(self)
+            asset_cost_account = line.env['assset_management.category_books'].search( [('book_id', '=', book_id), ('category_id', '=', category_id)])[0].asset_cost_account
+            depreciation_expense_account=line.env['assset_management.category_books'].search([('book_id','=',book_id),('category_id','=',category_id)])[0].depreciation_expense_account
+            partner_id=line.env['asset_management.source_line'].search([('asset_id','=',asset_id)])[0].invoice_id.partner_id
+            amount = current_currency.compute(line.amount, current_currency)
+            move_line_1 = {
+                'name': line.asset_id.name,
+                'account_id':asset_cost_account.id,
+                'debit': 0.0 ,
+                'credit': amount ,
+                'journal_id':jounal_id,
+                'analytic_account_id': False,
+            }
+            move_line_2 = {
+                'name': line.asset_id.name,
+                'account_id':depreciation_expense_account.id,
+                'credit': 0.0 ,
+                'debit': amount ,
+                'journal_id': jounal_id,
+                'analytic_account_id':  False,
+            }
+            move_vals = {
+                'ref':line.asset_id.name,
+                'date': depreciation_date or False,
+                'journal_id': jounal_id,
+                'line_ids': [(0, 0, move_line_1), (0, 0, move_line_2)],
+            }
+            move = self.env['account.move'].create(move_vals)
+            line.write({'move_id': move.id, 'move_check': True})
+            created_moves |= move
 
-#self.env.ref('asset_management.book_assets_form_view').id
-
-
-#    @api.model
- #    def _cron_generate_entries(self):
- #        self.compute_generated_entries(datetime.today())
- #
- #
- # #used in asset_depreciation confirmation wizard
- #    @api.model
- #    def compute_generated_entries(self, date, asset_type=None):
- #        # Entries generated : one by grouped category and one by asset from ungrouped category
- #        created_move_ids = []
- #        type_domain = []
- #        if asset_type:
- #            type_domain = [('type', '=', asset_type)]
- #
- #        # ungrouped_assets = self.env['asset_management.asset'].search(type_domain + [('state', '=', 'open'), ('category_id.group_entries', '=', False)])
- #        # created_move_ids += ungrouped_assets._compute_entries(date, group_entries=False)
- #
- #        for grouped_category in self.env['asset_management.category'].search(type_domain + [('group_entries', '=', True)]):
- #            assets = self.env['asset_management.asset'].search([('state', '=', 'open'), ('category_id', '=', grouped_category.id)])
- #            created_move_ids += assets._compute_entries(date, group_entries=True)
- #        return created_move_ids
-
+            if post_move and created_moves:
+                created_moves.filtered(
+                    lambda m: any(m.asset_depreciation_ids.mapped('asset_id.category_id.open_asset'))).post()
+            return [x.id for x in created_moves]
 
 
 class Assignment(models.Model):
     _name = 'asset_management.assignment'
     name = fields.Char(string="Assignment",readonly='True',index=True)
-    #book_assets_id = fields.Many2one('asset_management.book_assets',on_delete = 'cascade')
-    book_id = fields.Many2one("asset_management.book", string="Book",on_delete = 'cascade',required=True)
-    asset_id = fields.Many2one("asset_management.asset", string="Asset", on_delete='cascade',readonly=True)
+    book_assets_id = fields.Many2one('asset_management.book_assets',on_delete = 'cascade')
+    book_id = fields.Many2one("asset_management.book", string="Book",on_delete = 'cascade' )
+    asset_id = fields.Many2one("asset_management.asset", string="Asset", on_delete='cascade')
     expence_Acc_ID = fields.Many2one('account.account', on_delete='set_null')
     responsible_id = fields.Many2one('hr.employee', on_delete='set_null')
-    location_id = fields.Many2one('asset_management.location',required=True)
+    location_id = fields.Many2one('asset_management.location')
     is_not_used = fields.Boolean( defult = False )
-    # end_use_date = fields.Date()
+    end_use_date = fields.Date()
     transfer_date = fields.Date()
     comments = fields.Text()
-    percentage = fields.Float(default=100)
-
-
-    @api.constrains('percentage')
-    def _check_valid_percentage(self):
-        for record in self:
-             if not  record.percentage < 101.00 and not record.percentage > 0.00:
-            # if not record.percentage in range(0.00, 101.00):
-                raise ValidationError("Invalid value")
-
-
-#get default value from CategoryBook
-    @api.onchange('book_id')
-    def onchange_book_id(self):
-        category_book = self.env['asset_management.category_books'].search(
-            [('book_id', '=', self.book_id.id), ('category_id', '=', self.asset_id.category_id.id)])
-        value = {
-            'expence_Acc_ID':category_book.expence_Acc_ID
-        }
-        for k, v in value.items():
-            setattr(self, k, v)
-
-        if self._context.get('category_id'):
-            res = []
-            book_domain = self.env['asset_management.category_books'].search(
-                    [('category_id', '=', self._context.get('category_id'))])
-            for x in book_domain:
-                res.append(x.book_id.id)
-            return {'domain': {'book_id': [('id', 'in', res)]
-                                   }}
-
+    percentage=fields.Integer(default = 100)
+    # units = fields.Integer()
+    # units_to_assign= fields.Integer(string = "Units to Assign ,compute = '_get_units_to_assign')
+    # @api.depends('responsible_id')
+    # def _get_default_location(self):
+    #    for record in self:
+    #        record.location_id=record.responsible_id.work_location
     # @api.depends('units')
     # def _get_units_to_assign(self):
     #     for record in self:
     #       record.units_to_assign= record.book_assets_id.asset_id.units-record.units
 
-#creat transaction record when adding a new assignment and location
+    @api.constrains('percentage')
+    def _check_valid_percentage(self):
+        for record in self:
+            if not record.percentage in range(0,101):
+                raise ValidationError("Invalid value")
+
+
     @api.model
     def create(self, values):
         values['name']=self.env['ir.sequence'].next_by_code('asset_management.assignment.Assignment')
-        record=super(Assignment, self).create(values)
-        record.env['asset_management.transaction'].create({
-            'asset_id': record.asset_id.id,
-            'category_id': record.asset_id.category_id.id,
-            'trx_type': 'transfer',
-            'trx_date': datetime.today(),
-            'trx_details': 'Responsible : '+str(record.responsible_id.name)+'\nLocation : '+record.location_id.name
-        })
-        return record
+        return super(Assignment, self).create(values)
 
-    # @api.onchange('responsible_id','location_id')
-    # def _onchange_assignment(self):
-    #     if self.responsible_id or self.location_id:
-    #         self.env['asset_management.transaction'].create({
-    #             'asset_id':self.asset_id.id,
-    #             'category_id':self.asset_id.category_id.id,
-    #             'trx_type': 'transfer',
-    #             'trx_date': datetime.today()
-    #                 })
+    @api.onchange('responsible_id','location_id')
+    def _onchange_assignment(self):
+        if self.responsible_id or self.location_id:
+            self.env['asset_management.transaction'].create({
+                'asset_id':self.asset_id.id,
+                'category_id':self.asset_id.category_id.id,
+                'trx_type': 'transfer',
+                'trx_date': datetime.today()
+                    })
 
-#create transaction when changing responsible or location
-    @api.multi
-    def write(self,values):
-        old_responsible=self.responsible_id
-        old_location=self.location_id
-        super(Assignment, self).write(values)
-        if 'responsible_id' in values:
-            if  self.responsible_id != old_responsible :
-                self.env['asset_management.transaction'].create({
-                    'asset_id':self.asset_id.id,
-                    'category_id':self.asset_id.category_id.id,
-                    'trx_type':'transfer',
-                    'trx_date':datetime.today(),
-                    'trx_details':'Old Responsible : '+str(old_responsible.name)+'\nNew Responsible : '+self.responsible_id.name ,
-                                                                })
-        if 'location_id' in values:
-            if self.location_id != old_location :
-                self.env['asset_management.transaction'].create({
-                    'asset_id': self.asset_id.id,
-                    'category_id': self.asset_id.category_id.id,
-                    'trx_type': 'transfer',
-                    'trx_date': datetime.today(),
-                    'trx_details': 'Old Location : '+old_location.name+'\nNew Location : '+self.location_id.name,
-                })
+    @api.onchange('end_use_date')
+    def onchange_method(self):
+       if self.end_use_date :
+           self.is_not_used = True
 
-    # @api.onchange('end_use_date')
+    # @api.onchange('book_id')
     # def onchange_method(self):
-    #    if self.end_use_date :
-    #        self.is_not_used = True
+    #     if self.book_id :
+    #         x=[]
+    #         result = self.env['asset_management.book_assets'].search([('book_id', '=', self.book_id.id)])
+    #         for r in result:
+    #             x+=[r.asset_id.id]
+    #
+    #         # result1=self.env['asset_management.asset'].search([('id','=',result.asset_id.id)])
+    #         # res=result1.mapped('id')
+    #         return {'domain':{'asset_id':[('id', 'in',x)]
+    #                           }}
 
 
-
-class SourceLine(models.Model):
+class Source_Line(models.Model):
     _name = 'asset_management.source_line'
     name = fields.Char(string="Source Line Number",readonly=True,index=True)
-    asset_id = fields.Many2one('asset_management.asset',on_delete = 'cascade',readonly=True)
+    asset_id = fields.Many2one('asset_management.asset',on_delete = 'cascade')
     source_type = fields.Selection(
         [
             ('invoice','Invoice'),
@@ -641,24 +481,24 @@ class SourceLine(models.Model):
         ]
     )
     #source_id = fields.Char(sting='Source')
-    invoice_id = fields.Many2one("account.invoice", string="invoice",on_delete='cascade')
-    po_id = fields.Many2one("purchase.order", string="purchase order",on_delete='cascade')
+    invoice_id = fields.Many2one(comodel_name="account.invoice", string="invoice")
+    po_id = fields.Many2one(comodel_name="purchase.order", string="purchase order")
     #po_line_id=fields.Many2one(comodel_name="purchase.order.line", string="purchase order",compute="_get_po_line")
     amount = fields.Float('Amount')
     description = fields.Text()
 
     @api.model
     def create(self, values):
-        values['name']=self.env['ir.sequence'].next_by_code('asset_management.source_line.SourceLine')
-        return super(SourceLine, self).create(values)
+        values['name']=self.env['ir.sequence'].next_by_code('asset_management.source_line.Source_Line')
+        return super(Source_Line, self).create(values)
 
 
 class Depreciation(models.Model):
     _name = 'asset_management.depreciation'
     name = fields.Char(string="Depreciation Number",readonly=True,index=True)
-    book_assets_id = fields.Many2one('asset_management.book_assets', on_delete='cascade')
-    asset_id = fields.Many2one('asset_management.asset', on_delete='cascade')
-    book_id = fields.Many2one('asset_management.book', on_delete='cascade')
+    book_assets_id = fields.Many2one('asset_management.book_assets', on_delte='cascade')
+    asset_id = fields.Many2one('asset_management.asset', on_delte='cascade')
+    book_id = fields.Many2one('asset_management.book', on_delte='cascade')
     sequence = fields.Integer(required=True)
     amount = fields.Float(string='Current Depreciation', digits=0, )
     remaining_value = fields.Float(string='Next Period Depreciation', digits=0, required=True)
@@ -666,11 +506,8 @@ class Depreciation(models.Model):
     depreciation_date = fields.Date('Depreciation Date', index=True)
     move_id = fields.Many2one('account.move', string='Depreciation Entry')
     move_check = fields.Boolean(compute='_get_move_check', string='Linked', track_visibility='always', store=True)
-    move_posted_check = fields.Boolean(compute='_get_move_posted_check', string='Posted', track_visibility='always',store=True)
-    parent_state = fields.Selection(related="book_assets_id.state", string='State of Asset')
-
-
-
+    move_posted_check = fields.Boolean(compute='_get_move_posted_check', string='Posted', track_visibility='always',
+                                       store=True)
 
     @api.multi
     @api.depends('move_id')
@@ -678,40 +515,36 @@ class Depreciation(models.Model):
         for line in self:
             line.move_check = bool(line.move_id)
 
-
     @api.multi
     @api.depends('move_id.state')
     def _get_move_posted_check(self):
         for line in self:
             line.move_posted_check = True if line.move_id and line.move_id.state == 'posted' else False
 
-
-# generate entries in account.move
     @api.multi
     def create_move(self, post_move=True):
         created_moves = self.env['account.move']
         prec = self.env['decimal.precision'].precision_get('Account')
         current_currency = self.env['res.company'].search([('id','=',1)])[0].currency_id
-        journal_id=self.env['asset_management.category_books'].search([('book_id', '=', self.book_id.id),('category_id', '=', self.asset_id.category_id.id)]).journal_id
+        jounal_id=self.env['account.journal'].search([('id','=',3)])[0].id
         for line in self:
             if line.move_id:
                 raise UserError(
                     _('This depreciation is already linked to a journal entry! Please post or delete it.'))
             category_id = line.asset_id.category_id
-            depreciation_date = self.env.context.get('depreciation_date') or line.depreciation_date or fields.Date.context_today(self)
-            accumulated_expense_account = line.env['asset_management.category_books'].search( [('book_id', '=', self.book_id.id), ('category_id', '=', self.asset_id.category_id.id)])[0].accumulated_expense_account
-            expence_Acc_ID=line.env['asset_management.assignment'].search([('asset_id','=',self.asset_id.id)])[0].expence_Acc_ID
-            partner_id=line.env['asset_management.source_line'].search([('asset_id','=',self.asset_id.id)])[0].invoice_id.partner_id
-            if partner_id is None:
-                raise ValidationError ("Source Line must be entered")
+            depreciation_date = self.env.context.get(
+                'depreciation_date') or line.depreciation_date or fields.Date.context_today(self)
+            asset_cost_account = line.env['assset_management.category_books'].search( [('book_id', '=', book_id), ('category_id', '=', category_id)])[0].asset_cost_account
+            depreciation_expense_account=line.env['assset_management.category_books'].search([('book_id','=',book_id),('category_id','=',category_id)])[0].depreciation_expense_account
+            partner_id=line.env['asset_management.source_line'].search([('asset_id','=',asset_id)])[0].invoice_id.partner_id
             amount = current_currency.with_context(date=depreciation_date).compute(line.amount, current_currency)
             asset_name = line.asset_id.name + ' (%s/%s)' % (line.sequence, len(line.asset_id.depreciation_line_ids))
             move_line_1 = {
                 'name': asset_name,
-                'account_id':accumulated_expense_account.id,
+                'account_id':asset_cost_account.id,
                 'debit': 0.0 if float_compare(amount, 0.0, precision_digits=prec) > 0 else -amount,
                 'credit': amount if float_compare(amount, 0.0, precision_digits=prec) > 0 else 0.0,
-                'journal_id':journal_id.id,
+                'journal_id':jounal_id,
                 'partner_id': partner_id.id,
                 'analytic_account_id': False,
                 'currency_id':  current_currency.id or False,
@@ -719,10 +552,10 @@ class Depreciation(models.Model):
             }
             move_line_2 = {
                 'name': asset_name,
-                'account_id':expence_Acc_ID.id,
+                'account_id':depreciation_expense_account.id,
                 'credit': 0.0 if float_compare(amount, 0.0, precision_digits=prec) > 0 else -amount,
                 'debit': amount if float_compare(amount, 0.0, precision_digits=prec) > 0 else 0.0,
-                'journal_id': journal_id.id,
+                'journal_id': jounal_id,
                 'partner_id': partner_id.id,
                 'analytic_account_id':  False,
                 'currency_id': current_currency.id or False,
@@ -731,113 +564,114 @@ class Depreciation(models.Model):
             move_vals = {
                 'ref': line.asset_id.name,
                 'date': depreciation_date or False,
-                'journal_id': journal_id.id,
+                'journal_id': jounal_id,
                 'line_ids': [(0, 0, move_line_1), (0, 0, move_line_2)],
             }
             move = self.env['account.move'].create(move_vals)
             line.write({'move_id': move.id, 'move_check': True})
             created_moves |= move
-            #source_line=self.env['asset_management.source_line'].search([('asset_id','=',self.asset_id.id),('source_type','=','invoice')])
-            # if post_move and created_moves:
-            #     created_moves.filtered(
-            #         lambda m: any(m.asset_depreciation_id.mapped('asset_id.source_line_id'))).post()
+
+            if post_move and created_moves:
+                created_moves.filtered(
+                    lambda m: any(m.asset_depreciation_ids.mapped('asset_id.category_id.open_asset'))).post()
             return [x.id for x in created_moves]
 
+    @api.multi
+    def create_grouped_move(self, post_move=True):
+        if not self.exists():
+            return []
 
-#generat entries in account.move based on category_grouped
+
+        created_moves = self.env['account.move']
+        category_id = self[0].asset_id.category_id  # we can suppose that all lines have the same category
+        depreciation_date = self.env.context.get('depreciation_date') or fields.Date.context_today(self)
+        jounal_id = self.env['account.journal'].search([('id', '=', 3)])[0].id
+        amount = 0.0
+        for line in self:
+            asset_cost_account = line.env['assset_management.category_books'].search(
+            [('book_id', '=', book_id), ('category_id', '=', category_id)])[0].asset_cost_account
+            depreciation_expense_account = line.env['assset_management.category_books'].search(
+                [('book_id', '=', book_id), ('category_id', '=', category_id)])[0].depreciation_expense_account
+            # Sum amount of all depreciation lines
+            # company_currency = line.asset_id.company_id.currency_id
+            current_currency = self.env['res.company'].search([('id', '=', 1)])[0].currency_id
+            amount += current_currency.compute(line.amount, current_currency)
+
+        name = category_id.name + _(' (grouped)')
+        move_line_1 = {
+            'name': name,
+            'account_id': asset_cost_account.id,
+            'debit': 0.0,
+            'credit': amount,
+            'journal_id':jounal_id.id,
+            'analytic_account_id':  False,
+        }
+        move_line_2 = {
+            'name': name,
+            'account_id': depreciation_expense_account.id,
+            'credit': 0.0,
+            'debit': amount,
+            'journal_id': jounal_id.id,
+            'analytic_account_id':  False,
+        }
+        move_vals = {
+            'ref': category_id.name,
+            'date': depreciation_date or False,
+            'journal_id': journal_id.id,
+            'line_ids': [(0, 0, move_line_1), (0, 0, move_line_2)],
+        }
+        move = self.env['account.move'].create(move_vals)
+        self.write({'move_id': move.id, 'move_check': True})
+        created_moves |= move
+
+        if post_move and created_moves:
+            self.post_lines_and_close_asset()
+            created_moves.post()
+        return [x.id for x in created_moves]
 
     # @api.multi
-    # def create_grouped_move(self, post_move=True):
-    #     created_moves = self.env['account.move']
-    #     current_currency = self.env['res.company'].search([('id', '=', 1)])[0].currency_id
-    #     journal_id = self.book_id.jounal_id.id
+    # def post_lines_and_close_asset(self):
+    #     # we re-evaluate the assets to determine whether we can close them
     #     for line in self:
-    #         category_id = line.asset_id.category_id
-    #         depreciation_date = self.env.context.get('depreciation_date') or line.depreciation_date or fields.Date.context_today(self)
-    #         asset_cost_account = line.env['assset_management.category_books'].search([('book_id', '=', self.book_id.id), ('category_id', '=', self.asset_id.category_id.id)])[0].accumulated_expense_account
-    #         depreciation_expense_account = line.env['assset_management.category_books'].search([('book_id', '=', self.book_id.id), ('category_id', '=', self.asset_id.category_id.id)])[0].depreciation_expense_account
-    #         partner_id = line.env['asset_management.source_line'].search([('asset_id', '=', self.asset_id.id)])[0].invoice_id.partner_id
-    #         amount = current_currency.compute(line.amount, current_currency)
-    #         move_line_1 = {
-    #             'name': line.asset_id.name,
-    #             'account_id': asset_cost_account.id,
-    #             'debit': 0.0,
-    #             'credit': amount,
-    #             'journal_id': journal_id,
-    #             'analytic_account_id': False,
-    #         }
-    #         move_line_2 = {
-    #             'name': line.asset_id.name,
-    #             'account_id': depreciation_expense_account.id,
-    #             'credit': 0.0,
-    #             'debit': amount,
-    #             'journal_id': journal_id,
-    #             'analytic_account_id': False,
-    #         }
-    #         move_vals = {
-    #             'ref': line.asset_id.name,
-    #             'date': depreciation_date or False,
-    #             'journal_id': journal_id,
-    #             'line_ids': [(0, 0, move_line_1), (0, 0, move_line_2)],
-    #         }
-    #         move = self.env['account.move'].create(move_vals)
-    #         line.write({'move_id': move.id, 'move_check': True})
-    #         created_moves |= move
+    #         line.log_message_when_posted()
+    #         asset = line.asset_id
+    #         current_cost=line.env['asset_management.book_asset'].search([('asset_id','=',asset_id),('book_id','=',book_id)])[0].current_cost
+    #         current_currency = self.env['res.company'].search([('id', '=', 1)])[0].currency_id
+    #         if current_currency.is_zero(current_cost):
+    #             asset.message_post(body=_("Document closed."))
+    #             asset.write({'state': 'close'})
     #
-    #         if post_move and created_moves:
-    #             self.post_lines_and_close_asset()
-    #             created_moves.post()
-    #         return [x.id for x in created_moves]
-
-
-    @api.multi
-    def post_lines_and_close_asset(self):
-        # we re-evaluate the assets to determine whether we can close them
-        for line in self:
-            line.log_message_when_posted()
-            asset = line.asset_id
-            book=line.book_id
-            book_asset=line.env['asset_management.book_assets'].search([('asset_id','=',asset.id),('book_id','=',book.id)])
-            current_cost=book_asset[0].current_cost
-            current_currency = self.env['res.company'].search([('id', '=', 1)])[0].currency_id
-            if current_currency.is_zero(current_cost):
-                #asset.message_post(body=_("Document closed."))
-                book_asset.write({'state': 'close'})
-
-
-    @api.multi
-    def log_message_when_posted(self):
-        def _format_message(message_description, tracked_values):
-            message = ''
-            if message_description:
-                message = '<span>%s</span>' % message_description
-            for name, values in tracked_values.items():
-                message += '<div> &nbsp; &nbsp; &bull; <b>%s</b>: ' % name
-                message += '%s</div>' % values
-            return message
-
-        for line in self:
-            if line.move_id and line.move_id.state == 'draft':
-                partner_name = line.env['asset_management.source_line'].search([('asset_id','=',self.asset_id.id)])[0].invoice_id.partner_id
-                currency_name = self.env['res.company'].search([('id','=',1)])[0].currency_id
-                msg_values = {_('Currency'): currency_name, _('Amount'): line.amount}
-                if partner_name:
-                    msg_values[_('Partner')] = partner_name
-                #msg = _format_message(_('Depreciation line posted.'), msg_values)
-                #line.asset_id.message_post(body=msg)
-
-
-    @api.multi
-    def unlink(self):
-        for record in self:
-            if record.move_check:
-                if record.asset_id.source_line_id.source_type == 'po':
-                    msg = _("You cannot delete posted depreciation lines.")
-                else:
-                    msg = _("You cannot delete posted installment lines.")
-                raise UserError(msg)
-        return super(Depreciation, self).unlink()
-
+    # @api.multi
+    # def log_message_when_posted(self):
+    #     def _format_message(message_description, tracked_values):
+    #         message = ''
+    #         if message_description:
+    #             message = '<span>%s</span>' % message_description
+    #         for name, values in tracked_values.items():
+    #             message += '<div> &nbsp; &nbsp; &bull; <b>%s</b>: ' % name
+    #             message += '%s</div>' % values
+    #         return message
+    #
+    #     for line in self:
+    #         if line.move_id and line.move_id.state == 'draft':
+    #             partner_name = line.asset_id.partner_id.name
+    #             currency_name = line.asset_id.currency_id.name
+    #             msg_values = {_('Currency'): currency_name, _('Amount'): line.amount}
+    #             if partner_name:
+    #                 msg_values[_('Partner')] = partner_name
+    #             msg = _format_message(_('Depreciation line posted.'), msg_values)
+    #             line.asset_id.message_post(body=msg)
+    #
+    # @api.multi
+    # def unlink(self):
+    #     for record in self:
+    #         if record.move_check:
+    #             if record.asset_id.category_id.type == 'purchase':
+    #                 msg = _("You cannot delete posted depreciation lines.")
+    #             else:
+    #                 msg = _("You cannot delete posted installment lines.")
+    #             raise UserError(msg)
+    #     return super(AccountAssetDepreciationLine, self).unlink()
 
     @api.model
     def create(self, values):
@@ -850,10 +684,10 @@ class Retirement (models.Model):
     name=fields.Char(string="Retirement Number",readonly=True,index=True)
     book_assets_id = fields.Many2one('asset_management.book_assets',on_delete = 'cascade')
     book_id=fields.Many2one('asset_management.book',on_delete = 'cascade')
-    asset_id = fields.Many2one('asset_management.asset', on_delete='cascade')
+    asset_id = fields.Many2one('asset_management.asset', required=True, on_delete='cascade')
     retire_date = fields.Date(string = 'Retire Date')
     comments = fields.Text(string = "Comments")
-    residual_value = fields.Float(string= "Residual Value")
+    current_cost = fields.Float(string= "Current Cost")
     units_retired = fields.Integer(string ='Units Retired')
     current_units = fields.Integer(string="Units to Assign"
                                       , compute='_get_current_units')
@@ -864,11 +698,9 @@ class Retirement (models.Model):
     partner_id = fields.Many2one(comodel_name="res.partner", string="Sold To")
     check_invoice= fields.Char()
 
-
     @api.model
     def _get_current_units(self):
         return self.book_assets_id.asset_id.units - self.units_retired
-
 
     @api.model
     def create(self, values):
@@ -876,34 +708,26 @@ class Retirement (models.Model):
         return super(Retirement,self).create(values)
 
 
-class CategoryBooks(models.Model):
+class Category_Books(models.Model):
     _name= 'asset_management.category_books'
     name = fields.Char(string="Category Books Num",index=True)
-    category_id = fields.Many2one('asset_management.category',readonly=True,on_delete='cascade',string='Category')
-    book_id = fields.Many2one('asset_management.book',on_delete='cascade',string='Book Num',required=True)
-    asset_cost_account = fields.Many2one('account.account',on_delete='set_null',required=True)
-    asset_clearing_account = fields.Many2one('account.account', on_delete='set_null',required=True)
-    depreciation_expense_account = fields.Many2one('account.account', on_delete='set_null',required=True)
-    accumulated_expense_account = fields.Many2one('account.account', on_delete='set_null',required=True)
+    category_id = fields.Many2one('asset_management.category',required=True
+                                        ,on_delete='cascade',string='Category')
+    book_id = fields.Many2one('asset_management.book',on_delete='cascade',string='Book Num')
+    asset_cost_account = fields.Many2one('account.account',on_delete='set_null')
+    asset_clearing_account = fields.Many2one('account.account', on_delete='set_null')
+    depreciation_expense_account = fields.Many2one('account.account', on_delete='set_null')
+    accumulated_expense_account = fields.Many2one('account.account', on_delete='set_null')
+    bonus_expense_account = fields.Many2one('account.account', on_delete='set_null')
+    bonus_reserve_account = fields.Many2one('account.account', on_delete='set_null')
+    cip_cost_account =fields.Many2one('account.account', on_delete='set_null')
+    cip_clearing_account = fields.Many2one('account.account', on_delete='set_null')
     book_with_cate=fields.Boolean(related='book_id.book_with_cate')
-    group_entries=fields.Boolean(deafult=True)
-    journal_id = fields.Many2one('account.journal', string='Journal', required=True)
-    depreciation_method = fields.Selection([('linear','Linear'),('degressive','Degressive')],default='linear')
-    life_months = fields.Integer(required=True)
-    expence_Acc_ID = fields.Many2one('account.account', on_delete='set_null',required=True)
-    method_time = fields.Selection([('number', 'Number of Entries'), ('end', 'Ending Date')], string='Time Method',required=True,default='number',
-                                   help="Choose the method to use to compute the dates and number of entries.\n"
-                                        "  * Number of Entries: Fix the number of entries and the time between 2 depreciations.\n"
-                                        "  * Ending Date: Choose the time between 2 depreciations and the date the depreciations won't go beyond.")
-
-
-
-
+    test_field=fields.Boolean()
     @api.model
     def create(self, values):
-        values['name'] = self.env['ir.sequence'].next_by_code('asset_management.category_books.CategoryBooks')
-        return super(CategoryBooks, self).create(values)
-
+        values['name'] = self.env['ir.sequence'].next_by_code('asset_management.category_books.Category_Books')
+        return super(Category_Books, self).create(values)
 
     @api.onchange('book_id')
     def onchange_method(self):
@@ -930,13 +754,12 @@ class Transaction (models.Model):
     )
     trx_date = fields.Date('Transaction Date')
     cost = fields.Float('Cost')
-    trx_details = fields.Text('Transaction Details')
+    trx_details = fields.Text('Trx Details')
     period = fields.Selection(
         [('1','JAN'),
          ('2','FEB'),
          ('3','MAR')]
     )
-
 
     @api.model
     def create(self, vals):
@@ -967,9 +790,6 @@ class AssetTag(models.Model):
 
 class AssetLocation(models.Model):
     _name = 'asset_management.location'
-    name = fields.Char(string='Street')
-    city=fields.Char()
-    state_id=fields.Many2one('res.country.state')
-    country_id=fields.Many2one('res.country')
+    name = fields.Char()
 
 
